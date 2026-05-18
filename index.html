@@ -1,0 +1,1581 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wellington · 29 May – 1 June 2026</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #F7F1E6; --cream-deep: #EFE5D2;
+      --ink: #1E2B2A; --ink-soft: #4C5957; --ink-mute: #8B948F;
+      --teal: #15514D; --teal-deep: #0E3937;
+      --coral: #D85C44; --coral-soft: #F8D8CF;
+      --sage: #8AA68B; --sage-soft: #DCE6D6;
+      --gold: #C8954A; --gold-soft: #F0DEB6;
+      --line: #E5D9C0; --line-strong: #C9B98F;
+    }
+    html, body { background: var(--cream); color: var(--ink); }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .serif { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.01em; font-variation-settings: "opsz" 36; }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .ink { color: var(--ink); } .ink-soft { color: var(--ink-soft); } .ink-mute { color: var(--ink-mute); }
+    .teal { color: var(--teal); } .teal-deep { color: var(--teal-deep); } .coral { color: var(--coral); }
+    .bg-cream { background: var(--cream); } .bg-cream-deep { background: var(--cream-deep); }
+    .bg-teal { background: var(--teal); } .bg-sage-soft { background: var(--sage-soft); }
+    .bg-coral-soft { background: var(--coral-soft); } .bg-gold-soft { background: var(--gold-soft); }
+    .border-line { border-color: var(--line); } .border-line-strong { border-color: var(--line-strong); }
+
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease; }
+    .card.clickable { cursor: pointer; }
+    .card.clickable:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -16px rgba(30,43,42,0.22); border-color: var(--line-strong); }
+
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px;
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+
+    .tab-btn { padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all 120ms ease; }
+    .tab-btn[data-active="true"] { background: var(--teal); color: var(--cream); }
+    .tab-btn[data-active="false"] { color: var(--ink-soft); }
+    .tab-btn[data-active="false"]:hover { background: var(--cream-deep); }
+
+    .chip { padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500;
+      background: #fff; border: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; transition: all 120ms ease; }
+    .chip[data-active="true"] { background: var(--teal); border-color: var(--teal); color: var(--cream); }
+    .chip[data-active="false"]:hover { background: var(--cream-deep); }
+
+    .timeline-rail { position: absolute; left: 28px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+    .timeline-dot { position: absolute; left: 20px; width: 18px; height: 18px; border-radius: 999px;
+      background: #fff; border: 2px solid var(--teal); }
+
+    .place-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%); }
+    .place-img-sm { aspect-ratio: 4/3; }
+
+    .fav-btn {
+      position: absolute; top: 10px; right: 10px; width: 36px; height: 36px;
+      border-radius: 999px; background: rgba(255,255,255,0.95);
+      border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; line-height: 1; transition: transform 100ms;
+    }
+    .fav-btn:hover { transform: scale(1.08); }
+
+    .checkitem {
+      display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; cursor: pointer;
+      border-bottom: 1px dashed var(--line); user-select: none;
+    }
+    .checkitem:last-child { border-bottom: none; }
+    .checkitem input[type=checkbox] { margin-top: 3px; cursor: pointer; accent-color: var(--teal); width: 16px; height: 16px; }
+    .checkitem.done .label { text-decoration: line-through; color: var(--ink-mute); }
+
+    .scrim { position: fixed; inset: 0; background: rgba(15,30,29,0.55); z-index: 50; opacity: 0;
+      pointer-events: none; transition: opacity 160ms ease; }
+    .scrim[data-open="true"] { opacity: 1; pointer-events: auto; }
+
+    .sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(640px, 100vw); background: var(--cream);
+      z-index: 60; transform: translateX(100%); transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+      overflow-y: auto; box-shadow: -10px 0 40px -10px rgba(0,0,0,0.25); }
+    .sheet[data-open="true"] { transform: translateX(0); }
+
+    .link-underline { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .grain { background-image: radial-gradient(rgba(30,43,42,0.025) 1px, transparent 1px); background-size: 4px 4px; }
+    .alert-banner { background: linear-gradient(120deg, var(--gold-soft), var(--cream-deep)); border: 1px solid var(--line-strong); border-radius: 14px; }
+    .ring-coral { box-shadow: 0 0 0 2px var(--coral); }
+    .ring-teal { box-shadow: 0 0 0 2px var(--teal); }
+
+    @media print { .no-print { display: none !important; } .card { box-shadow: none; break-inside: avoid; } body { background: #fff; } }
+  </style>
+</head>
+<body class="grain">
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useMemo, useEffect, useCallback } = React;
+
+    /* ================================================================ */
+    /* PLACES                                                              */
+    /* ================================================================ */
+
+    const PLACES = {
+      /* Eat in at the Airbnb */
+      homeMeal: { id: "homeMeal", name: "Eat in — at the Airbnb", category: "Eat in",
+        meal: ["breakfast", "lunch", "dinner"], cuisine: "Cook at home", price: 1, kidFriendly: true, homeStyle: true,
+        address: "219 Rintoul Street (the Airbnb)", website: null, hours: "Whenever",
+        img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&auto=format&fit=crop&q=80",
+        blurb: "Eat at the Airbnb. Lowest effort. Boys stay in PJs.",
+        order: "Whatever's in the fridge. Pasta, toasties, eggs, reheated leftovers.",
+        kidNote: "Easiest option after a big day.", fromBase: "Step out of the kitchen.", booking: "—" },
+
+      /* CAFES / BRUNCH */
+      floriditas: { id: "floriditas", name: "Floriditas", category: "Cafe / Brunch",
+        meal: ["breakfast", "lunch", "dinner"], cuisine: "Modern NZ", price: 2, kidFriendly: true,
+        address: "161 Cuba Street, Te Aro", website: "https://www.floriditas.co.nz/",
+        hours: "7 days · 7am–3pm (7:30am Sun). Dinner Tue–Sat from 5:30pm.", phone: "(04) 381 2212",
+        img: "https://cdn.prod.website-files.com/6965628ffea89a9c00d6d9cd/69656da213ba8572bf660713_Floriditas1.jpeg",
+        blurb: "Cuba Street institution since 2005. Less-formal-more-Welly take on the European grand cafe.",
+        order: "Eggs Florentine, ricotta hotcakes for Nate, baguette + butter for Cillian.",
+        kidNote: "Highchairs.", fromBase: "~10 min drive from the Airbnb.",
+        booking: "Reservations Tue–Sat dinner. WEEKEND BRUNCH IS WALK-IN ONLY." },
+      loretta: { id: "loretta", name: "Loretta", category: "All-day bistro / Brunch",
+        meal: ["breakfast", "lunch", "dinner"], cuisine: "Modern NZ", price: 3, kidFriendly: true, occasion: true,
+        address: "181 Cuba Street, Te Aro", website: "https://loretta.nz/",
+        hours: "Tue–Sun 7:30am–late", phone: "04 381 2212",
+        img: "https://spcdn.shortpixel.ai/spio/ret_img,q_cdnize,to_auto,s_webp:avif/loretta.nz/wp-content/uploads/Loretta-23.jpg",
+        blurb: "One of the best brunch spots in the country (Peter's words). Mediterranean-leaning all-day bistro.",
+        order: "Brunch: ricotta hotcakes, cured salmon, eggs benny. Dinner: whole roast chicken, wood-fired pizza.",
+        kidNote: "Highchairs. Welcoming with kids.", booking: "Online — book ahead for Sat night or weekend brunch." },
+      maranui: { id: "maranui", name: "Maranui Café", category: "Cafe / Brunch",
+        meal: ["breakfast", "lunch"], cuisine: "Cafe", price: 2, kidFriendly: true,
+        address: "Lyall Bay Surf Club, 7 Lyall Parade", website: "https://www.maranuicafe.co.nz/",
+        hours: "Mon–Thu 7–4 · Fri 7–5 · Sat–Sun 8–4", phone: "04 387 4539",
+        img: "https://static.wixstatic.com/media/4398fa_ed126a09bd4546708371fdec5a55d720~mv2.jpg",
+        blurb: "Upstairs in the Lyall Bay surf club. Sea view, planes overhead.",
+        order: "Corn fritters, breakfast burrito, pancakes.",
+        kidNote: "Highchairs. Beach is two metres away.", fromBase: "~10 min drive from the Airbnb.",
+        booking: "NO RESERVATIONS. Weekend queues by 8:30 — arrive by 7:30am." },
+      salvation: { id: "salvation", name: "Salvation Coffee", category: "Cafe",
+        meal: ["breakfast", "lunch"], cuisine: "Cafe", price: 1, kidFriendly: true,
+        address: "175 Riddiford Street, Newtown", website: "https://www.facebook.com/salvationcoffee/",
+        hours: "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+        img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&auto=format&fit=crop&q=80",
+        blurb: "Newtown local. In-house roaster.",
+        order: "Flat white. Toasties for a quick lunch.", fromBase: "~4 min drive from the Airbnb." },
+      customs: { id: "customs", name: "Customs by Coffee Supreme", category: "Cafe",
+        meal: ["breakfast"], cuisine: "Cafe", price: 1, kidFriendly: true,
+        address: "39 Ghuznee Street, Te Aro", website: "https://coffeesupreme.com/",
+        hours: "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+        img: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=900&auto=format&fit=crop&q=80",
+        blurb: "Coffee Supreme flagship.",
+        order: "Flat white + almond croissant.", fromBase: "~10 min drive from the Airbnb." },
+      leeds: { id: "leeds", name: "Leeds Street Bakery", category: "Bakery",
+        meal: ["breakfast", "lunch"], cuisine: "Bakery", price: 1, kidFriendly: true,
+        address: "14 Leeds Street, Te Aro", website: "https://leedsst.com/",
+        hours: "Mon–Fri 7am–4pm · Sat–Sun 8am–3pm",
+        img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&auto=format&fit=crop&q=80",
+        blurb: "Artisan bakery on Hannah's Laneway.",
+        order: "Red onion & cheese scone. Salted caramel cookie.", fromBase: "~12 min drive from the Airbnb." },
+      fidels: { id: "fidels", name: "Fidel's Cafe", category: "Cafe",
+        meal: ["breakfast", "lunch", "dinner"], cuisine: "Cafe", price: 2, kidFriendly: true,
+        address: "234 Cuba Street, Te Aro", website: "https://www.fidelscafe.com/", hours: "Daily 8am–late",
+        img: "https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=900&auto=format&fit=crop&q=80",
+        blurb: "Cuba Street fixture. Bohemian, all-day, big menu.",
+        order: "Mexican breakfast, Reuben sandwich." },
+      mojo: { id: "mojo", name: "Mojo Market Lane", category: "Cafe / Food court",
+        meal: ["breakfast", "lunch"], cuisine: "Mixed", price: 1, kidFriendly: true,
+        address: "Market Lane, Wellington Central", website: "https://mojocoffee.co.nz/", hours: "Mon–Fri 7am–4pm",
+        img: "https://images.unsplash.com/photo-1497636577773-f1231844b336?w=900&auto=format&fit=crop&q=80",
+        blurb: "Open-plan food court near the waterfront.",
+        order: "Burritos, sushi, dumplings, coffee." },
+
+      /* LUNCH / CASUAL */
+      oldquarter: { id: "oldquarter", name: "The Old Quarter", category: "Vietnamese",
+        meal: ["lunch", "dinner"], cuisine: "Vietnamese", price: 2, kidFriendly: true, takeaway: true,
+        address: "39b Dixon Street, Te Aro", website: "https://theoldquarter.co.nz/",
+        hours: "Mon–Sun · lunch + dinner", phone: "04 385 3916",
+        img: "https://images.unsplash.com/photo-1558030006-450675393462?w=900&auto=format&fit=crop&q=80",
+        blurb: "Vietnamese fusion just off Cuba.",
+        order: "Lemongrass beef banh mi, bún chay Hanoi, beef pho.", booking: "Online reservations." },
+      dumpling: { id: "dumpling", name: "The Dumpling Company", category: "Chinese",
+        meal: ["lunch", "dinner"], cuisine: "Asian", price: 1, kidFriendly: true, takeaway: true,
+        address: "39 Dixon Street, Te Aro", website: "https://www.facebook.com/thedumplingcompany/",
+        hours: "Mon–Sun 11am–9pm",
+        img: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=900&auto=format&fit=crop&q=80",
+        blurb: "Counter-service dumpling joint.",
+        order: "12 pork & garlic chive dumplings ($11). Chilli oil." },
+      dragons: { id: "dragons", name: "Dragons Wellington", category: "Chinese / Yum Cha",
+        meal: ["lunch", "dinner"], cuisine: "Asian", price: 2, kidFriendly: true, takeaway: true,
+        address: "25 Tory Street, Wellington Central", website: "https://www.wellingtondragons.co.nz/",
+        hours: "Yum cha Mon–Fri 11am–2:30pm, Sat–Sun 10:30am–2:30pm. Dinner 7 days 5pm–10pm.",
+        phone: "04 384 3288",
+        img: "https://static.wixstatic.com/media/d54a47_ff76cde7a05f4f319e3503ff42b61b2b~mv2.jpg",
+        blurb: "Big Cantonese yum cha + dumpling house. 130-dish menu. Cuisine Top 100 NZ 2019. Cillian and Nate in dumpling heaven.",
+        order: "Yum cha: pork & chive dumplings, har gow, char siu bao, BBQ pork puffs. Dinner: Peking duck, soup dumplings.",
+        kidNote: "Big tables, friendly staff. Very kid-positive.",
+        fromBase: "~10 min drive from the Airbnb.", booking: "Reservations online." },
+      pomodoro: { id: "pomodoro", name: "Pizza Pomodoro", category: "Pizza",
+        meal: ["lunch", "dinner"], cuisine: "Italian", price: 1, kidFriendly: true, takeaway: true,
+        address: "13 Leeds Street, Te Aro", website: "https://www.pizzapomodoro.co.nz/",
+        hours: "Tue–Sun, pickup + delivery focus", phone: "04 381 2929",
+        img: "https://static.wixstatic.com/media/54e2ec_ac3fd667e7cb4f348dc74404e3cfc6b6~mv2.jpeg",
+        blurb: "Neapolitan wood-fired pizza, owner from Naples.",
+        order: "Margherita for the boys, Tartufo for grown-ups.",
+        fromBase: "~12 min drive from the Airbnb." },
+      littlepenang: { id: "littlepenang", name: "Little Penang", category: "Malaysian",
+        meal: ["lunch", "dinner"], cuisine: "Asian", price: 2, kidFriendly: true, takeaway: true,
+        address: "40 Dixon Street, Te Aro", website: "https://www.facebook.com/LittlePenang/",
+        hours: "Mon–Sat 11:30am–9pm",
+        img: "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=900&auto=format&fit=crop&q=80",
+        blurb: "Classic Malaysian.",
+        order: "Hokkien Char, Kapitan curry with roti." },
+      kc: { id: "kc", name: "KC Cafe & Takeaways", category: "Hong Kong Cafe",
+        meal: ["lunch", "dinner"], cuisine: "Asian", price: 1, kidFriendly: true, takeaway: true,
+        address: "39A Courtenay Place, Te Aro", website: "https://www.instagram.com/_kccafe/",
+        hours: "7 days · lunch + dinner",
+        img: "https://images.unsplash.com/photo-1582450871972-ab5ca641643d?w=900&auto=format&fit=crop&q=80",
+        blurb: "HK cha chaan teng on Courtenay Place. Wellington icon since 1999.",
+        order: "Roast duck noodle soup, beef chow fun, salt-and-pepper squid.",
+        fromBase: "~10 min drive from the Airbnb.", booking: "Walk-in / takeaway." },
+      chocolate: { id: "chocolate", name: "Wellington Chocolate Factory", category: "Chocolate / Cafe",
+        meal: ["lunch"], cuisine: "Cafe", price: 2, kidFriendly: true,
+        address: "5 Eva Street, Te Aro", website: "https://wcf.co.nz/",
+        hours: "Tue–Sun 10am–4pm · Closed Mondays", phone: "04 385 7555",
+        img: "https://wcf.co.nz/cdn/shop/files/Tour-Banner.jpg?v=1732784396",
+        blurb: "Bean-to-bar chocolate maker.",
+        order: "Original hot chocolate. Single-origin bar to take home.",
+        kidNote: "Nate glued to the chocolate makers.",
+        fromBase: "~12 min drive from the Airbnb. Try parking on Ghuznee or Taranaki." },
+
+      /* DINNER / OCCASION */
+      charley: { id: "charley", name: "Charley Noble Eatery & Bar", category: "Brasserie",
+        meal: ["lunch", "dinner"], cuisine: "Modern NZ", price: 3, kidFriendly: true, occasion: true,
+        address: "1 Post Office Square, Te Aro", website: "https://www.charleynoble.co.nz/",
+        hours: "Lunch Tue–Fri · Dinner Tue–Sat from 5pm", phone: "0508 242 753",
+        img: "https://images.squarespace-cdn.com/content/v1/5d6b39018a813e0001f8e692/508e05ec-da86-475d-8454-72f0beae4241/Kitchen.jpg",
+        blurb: "Open wood-fired kitchen in a heritage building.",
+        order: "Flatbreads, dry-aged ribeye, hāngī chicken, sticky date pudding.",
+        kidNote: "Highchairs. 5pm sitting works best.",
+        fromBase: "~10 min drive from the Airbnb.",
+        booking: "WALK-IN ONLY for dinner. Arrive 5pm Saturday." },
+      kazu: { id: "kazu", name: "Kazu Yakitori & Sake Bar", category: "Japanese / Yakitori",
+        meal: ["lunch", "dinner"], cuisine: "Japanese", price: 3, kidFriendly: true, occasion: true,
+        address: "Level 1, 43 Courtenay Place, Te Aro",
+        website: "https://www.fpcnz.co.nz/stores/kazu-yakitori-sake-bar-wellington",
+        hours: "Mon–Thu 11:30–15:00 + 17:00–22:30 · Fri–Sat 11:30–23:00 · Sun 11:30–22:30",
+        phone: "04 802 4868",
+        img: "https://cdn.prod.website-files.com/618b600f5880cde88513e8c4/6190c042ea41ef7fc44e9e89_photo_2021-11-14%2020.50.55.jpg",
+        blurb: "Yakitori, sushi, ramen and a serious sake list. FPC group.",
+        order: "Yakitori skewers, agedashi tofu, sake flight.",
+        kidNote: "Vibe leans adult — fine early sitting.", booking: "Online via tableagent." },
+      koji: { id: "koji", name: "Koji Restaurant", category: "Modern Asian / Fusion",
+        meal: ["lunch", "dinner"], cuisine: "Asian", price: 3, kidFriendly: true, occasion: true,
+        address: "12 Majoribanks Street, Mt Victoria", website: "https://kojirestaurant.co.nz/",
+        hours: "Mon–Thu 5:30pm–late · Fri–Sat 11:30am–2:30pm + 5:30pm–late", phone: "04 213 7331",
+        img: "https://kojirestaurant.co.nz/wp-content/uploads/2021/11/koji-restaurant-gallery.jpg",
+        blurb: "Modern Pan-Asian sharing menu — classic Asian flavours, NZ produce.",
+        order: "The 'Just Feed Me' 9-course share menu (venison tartare, dumplings in 'strange sauce', curry donuts).",
+        kidNote: "Sharing format works well with kids.",
+        fromBase: "~10 min drive from the Airbnb.", booking: "Reservations online." },
+      oikos: { id: "oikos", name: "Oikos Hellenic Cuisine", category: "Greek",
+        meal: ["dinner"], cuisine: "Mediterranean", price: 3, kidFriendly: true, occasion: true,
+        address: "382 Broadway, Miramar, Wellington 6022",
+        website: "https://www.oikos.co.nz/", hours: "Tue–Sat 5pm–late", phone: "022 4800 170",
+        img: "https://images.squarespace-cdn.com/content/v1/5dbb4f26269b8d548fc2968a/1575334938850-1R5U9WDSWFQ2SN0OQVBL/oikos-share-menu-4.jpg",
+        blurb: "Suburban Greek share-plate restaurant in Miramar. Chef-owner Theo Papouis. 'Oikos' = family + home.",
+        order: "Sesame-crusted feta with honey + thyme, lamb shoulder, slow-braised octopus.",
+        kidNote: "Family-style sharing works with the boys.",
+        fromBase: "~10 min drive from the Airbnb via Newtown → Kilbirnie → Miramar.",
+        booking: "Reservations online." },
+      logan: { id: "logan", name: "Logan Brown", category: "Fine dining",
+        meal: ["dinner"], cuisine: "Modern NZ", price: 4, kidFriendly: false, occasion: true,
+        address: "192 Cuba Street, Te Aro", website: "https://www.loganbrown.co.nz/",
+        hours: "Dinner Wed–Sun from 5pm", phone: "04 801 5114",
+        img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&auto=format&fit=crop&q=80",
+        blurb: "Set-menu fine dining in a 1920s heritage banking hall.",
+        order: "Set tasting menu.", kidNote: "Not workable with the boys." },
+      capitol: { id: "capitol", name: "Capitol", category: "Italian",
+        meal: ["lunch", "dinner"], cuisine: "Italian", price: 3, kidFriendly: true, occasion: true,
+        address: "10 Kent Terrace, Mt Victoria", website: "https://www.capitolrestaurant.co.nz/",
+        hours: "Mon–Sat from 12pm", phone: "04 384 2855",
+        img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&auto=format&fit=crop&q=80",
+        blurb: "Wellington Italian classic.",
+        order: "Gnocchi, slow-braised lamb, panna cotta.", booking: "Reservations essential." },
+      ombra: { id: "ombra", name: "Ombra", category: "Italian / Wine bar",
+        meal: ["dinner"], cuisine: "Italian", price: 2, kidFriendly: false,
+        address: "199 Cuba Street, Te Aro", website: "https://www.ombra.co.nz/",
+        hours: "Mon–Sun from 4pm",
+        img: "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=900&auto=format&fit=crop&q=80",
+        blurb: "Venetian-style bacaro.",
+        order: "Cicchetti, sardine pasta, pet nat." },
+      ortega: { id: "ortega", name: "Ortega Fish Shack", category: "Seafood",
+        meal: ["dinner"], cuisine: "Seafood", price: 3, kidFriendly: true,
+        address: "16 Majoribanks Street, Mt Victoria", website: "https://www.ortega.co.nz/",
+        hours: "Tue–Sat from 5pm",
+        img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&auto=format&fit=crop&q=80",
+        blurb: "Long-running, nautical-themed seafood spot.",
+        order: "Whole grilled fish, oysters, fish pie." },
+      margot: { id: "margot", name: "Margot", category: "Wine bar / Small plates",
+        meal: ["dinner"], cuisine: "Modern NZ", price: 3, kidFriendly: false,
+        address: "152 Riddiford Street, Newtown", website: "https://www.margotwellington.co.nz/",
+        hours: "Wed–Sat from 5pm",
+        img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&auto=format&fit=crop&q=80",
+        blurb: "25-seat Newtown wine bar. Vegetable-led.",
+        order: "Whatever's on the chalkboard." },
+
+      /* DRINKS */
+      noblerot: { id: "noblerot", name: "Noble Rot Wine Bar", category: "Wine bar",
+        meal: ["drinks"], cuisine: "Wine", price: 2, kidFriendly: false,
+        address: "91 Aro Street, Aro Valley", website: "https://noblerot.co.nz/", hours: "Tue–Sat from 4pm",
+        img: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&auto=format&fit=crop&q=80",
+        blurb: "Wine bar with a serious list and small plates.",
+        order: "Cheese board, glass of Kumeu River chardonnay." },
+      garage: { id: "garage", name: "Garage Project Cellar Door", category: "Brewery",
+        meal: ["drinks"], cuisine: "Beer", price: 1, kidFriendly: true,
+        address: "68–70 Aro Street, Aro Valley", website: "https://garageproject.co.nz/", hours: "Wed–Sun, varied",
+        img: "https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=900&auto=format&fit=crop&q=80",
+        blurb: "Wellington's most famous craft brewery.",
+        order: "Hapi Daze, Party & Bullshit IPA." },
+
+      /* ACTIVITIES */
+      zoo: { id: "zoo", name: "Te Nukuao Wellington Zoo", category: "Activity — Animals",
+        kind: "activity", tags: ["outdoors", "kids", "all-ages", "rain-ok"],
+        duration: "2–3 hrs", priceLevel: "$$",
+        address: "200 Daniell Street, Newtown", website: "https://www.wellingtonzoo.com/",
+        hours: "Daily 9:30am–5pm (last entry 4:15pm)",
+        ticket: "Standard: ~$28 adult, ~$15 child 3–14, under 3 free. King's Birthday Welcome Weekend: $10 adult, $5 child — released online Tue 26 May.",
+        img: "https://www.wellingtonzoo.com/assets/Uploads/ShareImage/Lions-New-Adventure-1920x1277.jpg",
+        blurb: "Compact, well-run zoo on the Berhampore-Newtown border. Sumatran tigers, red pandas, kiwi house, meerkats, otters.",
+        order: "Open the gate at 9:30. Tiger and meerkat feeds mid-morning.",
+        kidNote: "Buggy-friendly. Bring snacks.",
+        fromBase: "5 min drive from the Airbnb.",
+        booking: "Welcome Weekend tickets release online Tue 26 May 2026." },
+      zealandia: { id: "zealandia", name: "Zealandia Te Māra a Tāne", category: "Activity — Nature",
+        kind: "activity", tags: ["outdoors", "quiet", "all-ages", "buggy-ok"],
+        duration: "2 hrs", priceLevel: "$$",
+        address: "End of Waiapu Road, Karori", website: "https://www.visitzealandia.com/",
+        hours: "Daily 9am–5pm · last entry 4pm",
+        ticket: "Adult ~$26, child 5–17 ~$13, under 5 free.",
+        img: "https://d1xuswh6q35c7x.cloudfront.net/media/images/Kaka_interactions_in_.afb22560.fill-1200x630.format-jpeg.jpg",
+        blurb: "225-hectare predator-free urban eco-sanctuary.",
+        order: "Lake Loop (~1hr). Kids' explorer pack at entry.",
+        kidNote: "Lake Loop is buggy-friendly.",
+        fromBase: "~15 min drive from the Airbnb via Karori.", booking: "Timed-entry tickets online." },
+      tepapa: { id: "tepapa", name: "Te Papa Tongarewa", category: "Activity — Museum",
+        kind: "activity", tags: ["indoors", "free", "all-ages", "rain-ok"],
+        duration: "2–4 hrs", priceLevel: "Free",
+        address: "55 Cable Street, Te Aro", website: "https://www.tepapa.govt.nz/",
+        hours: "Daily 10am–6pm", ticket: "Free for NZ residents.",
+        img: "https://tepapa.govt.nz/assets/76067/1658185372-our-building_tile.jpeg",
+        blurb: "National museum on the waterfront. Earthquake house, colossal squid, Māori taonga.",
+        order: "Level 2 for Discovery Centre.",
+        kidNote: "Buggy and feeding-friendly.", fromBase: "~10 min drive from the Airbnb." },
+      cablecar: { id: "cablecar", name: "Wellington Cable Car", category: "Activity — Cable car",
+        kind: "activity", tags: ["outdoors", "kids", "all-ages", "view"],
+        duration: "30 min one way + Botanic Garden walk", priceLevel: "$",
+        address: "280 Lambton Quay (base station), Wellington Central",
+        website: "https://www.wellingtoncablecar.co.nz/",
+        hours: "Mon–Fri 7am–10pm · Sat 8:30am–10pm · Sun 8:30am–9pm · every 10 min",
+        ticket: "Adult $6 return / $4 one-way. Child $3 return / $2 one-way. Under 5 free.",
+        img: "https://www.aucklandforkids.co.nz/wp-content/uploads/2018/12/cable-car-lookout-to-city-wellington-custom_orig.jpg",
+        blurb: "Wellington icon. Five-minute ride Lambton Quay → Kelburn. Free Cable Car Museum + walk down through the Botanic Garden.",
+        order: "Buy one-way up. Snap the classic shot at the lookout. Walk down through the gardens.",
+        kidNote: "Nate will love it. Cillian on a lap.",
+        fromBase: "~12 min drive from the Airbnb to the Lambton Quay base station.",
+        booking: "No booking." },
+      mtvic: { id: "mtvic", name: "Mt Victoria Lookout", category: "Activity — View",
+        kind: "activity", tags: ["outdoors", "view", "quick", "drive-up"],
+        duration: "20–30 min", priceLevel: "Free",
+        address: "Lookout Road, Mt Victoria",
+        website: "https://www.wellingtonnz.com/visit/trails/mount-victoria-lookout-walkway",
+        hours: "Always open", ticket: "Free.",
+        img: "https://wellingtonnz.bynder.com/transform/9c875ce4-81b4-4b4c-a06e-7ebe830388ad/Mt-Victoria-lookout-Brand-Kit-2025-06?quality=80",
+        blurb: "Drive to the top. 360° city, harbour, Cook Strait.",
+        order: "Drive up via Hawker St. 100m walk to the platform.",
+        kidNote: "Steep drop-offs — hold hands. Wind brutal up top.",
+        fromBase: "~10 min drive from the Airbnb." },
+      lyallbay: { id: "lyallbay", name: "Lyall Bay Beach", category: "Activity — Beach",
+        kind: "activity", tags: ["outdoors", "free", "kids", "windy"],
+        duration: "30–60 min", priceLevel: "Free",
+        address: "Lyall Bay Parade, Lyall Bay",
+        website: "https://wellington.govt.nz/recreation/outdoors/beaches-and-coast/eastern-suburbs/lyall-bay",
+        hours: "Always open", ticket: "Free.",
+        img: "https://wellington.govt.nz/-/media/recreation/enjoy-the-outdoors/beaches-and-coast/images/lyall-bay-beach.jpg?mw=1200",
+        blurb: "Long surf beach next to the airport. Planes overhead.",
+        order: "Park at the surf club end. Walk the length.",
+        kidNote: "Cold and windy May/June. Wellies and warm coats.",
+        fromBase: "~10 min drive from the Airbnb." },
+      otari: { id: "otari", name: "Ōtari-Wilton's Bush", category: "Activity — Nature",
+        kind: "activity", tags: ["outdoors", "free", "quiet", "buggy-ok"],
+        duration: "1–1.5 hrs", priceLevel: "Free",
+        address: "160 Wilton Road, Wilton",
+        website: "https://wellingtongardens.nz/our-gardens/otari-wiltons-bush",
+        hours: "Always open · Visitor centre 7:30am–4pm", ticket: "Free.",
+        img: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=900&auto=format&fit=crop&q=80",
+        blurb: "Native botanic garden + canopy walkway 18m above the stream.",
+        order: "Canopy Walkway + Trolley Loop ~30 min, pram-friendly.",
+        kidNote: "Pram-friendly on the main loop.", fromBase: "~20 min drive from the Airbnb." },
+      frankkitts: { id: "frankkitts", name: "Frank Kitts Park Playground", category: "Activity — Playground",
+        kind: "activity", tags: ["outdoors", "free", "kids", "waterfront"],
+        duration: "30–60 min", priceLevel: "Free",
+        address: "Jervois Quay, Wellington Central",
+        website: "https://wellington.govt.nz/recreation/enjoy-the-outdoors/parks-and-reserves",
+        hours: "Always open", ticket: "Free.",
+        img: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=900&auto=format&fit=crop&q=80",
+        blurb: "Waterfront playground with a lighthouse climbing structure." },
+      bucketfountain: { id: "bucketfountain", name: "Cuba St Bucket Fountain", category: "Activity — Free",
+        kind: "activity", tags: ["outdoors", "free", "kids", "quick"],
+        duration: "10 min", priceLevel: "Free",
+        address: "Cuba Mall between Dixon and Ghuznee Street",
+        website: "https://www.wellingtonnz.com/visit/places/cuba-street",
+        hours: "Always", ticket: "Free.",
+        img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&auto=format&fit=crop&q=80",
+        blurb: "50-year-old kinetic sculpture. Buckets tip water unpredictably.",
+        order: "Stand close enough to get splashed (Nate will love this)." },
+      orientalbay: { id: "orientalbay", name: "Oriental Bay", category: "Activity — Beach / Walk",
+        kind: "activity", tags: ["outdoors", "free", "view", "waterfront"],
+        duration: "30–60 min", priceLevel: "Free",
+        address: "Oriental Parade, Oriental Bay",
+        website: "https://www.wellingtonnz.com/visit/places/oriental-bay",
+        hours: "Always open", ticket: "Free.",
+        img: "https://backyardtravelfamily.com/wp-content/uploads/2019/11/wellington-oriental-bay-COVER-image.jpg",
+        blurb: "Town beach. Golden sand. Freyberg Beach playground.",
+        order: "Walk from Te Papa along the waterfront." },
+      botanicgarden: { id: "botanicgarden", name: "Wellington Botanic Garden", category: "Activity — Gardens",
+        kind: "activity", tags: ["outdoors", "free", "buggy-ok", "all-ages"],
+        duration: "1–2 hrs", priceLevel: "Free (Cable Car paid)",
+        address: "Glenmore Street, Thorndon",
+        website: "https://wellingtongardens.nz/our-gardens/wellington-botanic-garden-ki-paekaka",
+        hours: "Always open · Treehouse Visitor Centre 9am–4pm",
+        ticket: "Free entry. Cable Car ~$6 return.",
+        img: "https://backyardtravelfamily.com/wp-content/uploads/2019/11/Wellington-botanic-gardens-0796.jpg",
+        blurb: "Hilly, forested. Discovery Garden is the kids' favourite.",
+        order: "Park at the top. Discovery Garden + duck pond. Stroll down.",
+        fromBase: "~15 min drive from the Airbnb." },
+      wellingtonmuseum: { id: "wellingtonmuseum", name: "Wellington Museum", category: "Activity — Museum",
+        kind: "activity", tags: ["indoors", "free", "kids", "rain-ok"],
+        duration: "1–2 hrs", priceLevel: "Free",
+        address: "3 Jervois Quay, Wellington Central",
+        website: "https://www.museumswellington.org.nz/wellington-museum/",
+        hours: "Daily 10am–5pm", ticket: "Free.",
+        img: "https://www.aucklandforkids.co.nz/wp-content/uploads/2018/12/cable-car-lookout-to-city-wellington-custom_orig.jpg",
+        blurb: "Stories of Wellington in a heritage 1892 building. The Attic is steampunk weirdness.",
+        order: "Start at the Attic.", fromBase: "~10 min drive from the Airbnb." },
+      spaceplace: { id: "spaceplace", name: "Space Place — Carter Observatory", category: "Activity — Stars",
+        kind: "activity", tags: ["indoors", "kids", "rain-ok", "all-ages"],
+        duration: "1.5 hrs", priceLevel: "$$",
+        address: "40 Salamanca Road, Kelburn (top of the Cable Car)",
+        website: "https://www.museumswellington.org.nz/space-place/",
+        hours: "Wed–Sun · day + evening sessions",
+        ticket: "Adult ~$15, child 4–15 ~$7.",
+        img: "https://images.unsplash.com/photo-1532978879514-6cb1cd3b1b65?w=900&auto=format&fit=crop&q=80",
+        blurb: "Planetarium + interactive astronomy. Historic Thomas Cooke telescope.",
+        order: "Time it with a planetarium show.",
+        fromBase: "~15 min drive from the Airbnb." },
+      waitangipark: { id: "waitangipark", name: "Waitangi Park", category: "Activity — Park",
+        kind: "activity", tags: ["outdoors", "free", "kids", "waterfront"],
+        duration: "30–60 min", priceLevel: "Free",
+        address: "Cable Street (opposite New World), Te Aro",
+        website: "https://wellington.govt.nz/recreation/enjoy-the-outdoors/parks-and-reserves",
+        hours: "Always open", ticket: "Free.",
+        img: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=900&auto=format&fit=crop&q=80",
+        blurb: "Skate park + innovative children's playground behind Te Papa." },
+      eastbourne: { id: "eastbourne", name: "Eastbourne ferry day trip", category: "Activity — Day trip",
+        kind: "activity", tags: ["outdoors", "ferry", "kids", "all-ages"],
+        duration: "Half day", priceLevel: "$$",
+        address: "Queens Wharf to Days Bay", website: "https://www.eastbywest.co.nz/",
+        hours: "Multiple sailings daily", ticket: "Adult ~$15 return, child ~$8 return.",
+        img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&auto=format&fit=crop&q=80",
+        blurb: "20-min ferry from Queens Wharf to Days Bay.",
+        order: "East by West ferry. Lunch in Eastbourne." },
+      maitarangi: { id: "maitarangi", name: "Maitarangi Nature Trail", category: "Activity — Nature",
+        kind: "activity", tags: ["outdoors", "free", "kids", "quiet"],
+        duration: "30 min", priceLevel: "Free",
+        address: "Alexandra Road, Mt Victoria",
+        website: "https://www.wellingtonnz.com/visit/trails/mount-victoria-lookout-walkway",
+        hours: "Always open", ticket: "Free.",
+        img: "https://backyardtravelfamily.com/wp-content/uploads/2019/11/wellington-matairangi-nature-trail-2.jpg",
+        blurb: "Natural playground halfway up Mt Vic.",
+        order: "Drive up Alexandra Road. Let the boys explore." },
+    };
+
+    const P = (id) => PLACES[id];
+
+    /* ================================================================ */
+    /* FAVOURITES + PACKING + TODOS — defaults                            */
+    /* ================================================================ */
+
+    const FAVOURITES_DEFAULT = ["dragons", "kc", "oikos", "charley", "loretta", "zoo", "tepapa", "zealandia", "cablecar"];
+
+    const PACKING_LIST = [
+      { group: "Travel day (Friday morning)", items: [
+        { id: "p-clothes-fri", label: "Clothes for Friday laid out the night before (everyone)" },
+        { id: "p-bacon-sandwiches", label: "Bacon sandwiches for the car ride to AKL" },
+        { id: "p-coffee-flask", label: "Coffee flask filled for the drive" },
+        { id: "p-lunch-box-flight", label: "Lunch box for the flight — snacks, sandwiches, milk for Cillian" },
+        { id: "p-water-bottles", label: "Refillable water bottles" },
+      ]},
+      { group: "Clothes — Sat / Sun / Mon", items: [
+        { id: "p-clothes-peter", label: "Peter — 3 days + spare top" },
+        { id: "p-clothes-emma", label: "Emma — 3 days + spare top" },
+        { id: "p-clothes-mam", label: "Mam — 3 days + spare top" },
+        { id: "p-clothes-nate", label: "Nate — 3 days + 2 spare changes (gets dirty)" },
+        { id: "p-clothes-cillian", label: "Cillian — 3 days + 2 spare changes (gets very dirty)" },
+        { id: "p-pjs-adults", label: "PJs — adults" },
+        { id: "p-pjs-kids", label: "PJs — boys" },
+      ]},
+      { group: "Wellington weather (wet + windy)", items: [
+        { id: "p-waterproofs-all", label: "Waterproof shells for everyone" },
+        { id: "p-jumpers-coats", label: "Warm jumpers + coats" },
+        { id: "p-beanies-gloves", label: "Beanies + gloves" },
+        { id: "p-buggy-rain-cover", label: "Buggy rain cover" },
+        { id: "p-walking-shoes", label: "Walking shoes (Zealandia)" },
+        { id: "p-face-cream", label: "Face cream / Nivea — windy = dry lips + dry skin" },
+        { id: "p-togs", label: "Togs — for indoor pool (see todo)" },
+      ]},
+      { group: "Boys gear", items: [
+        { id: "p-nappies", label: "Nappies + wipes (3 days)" },
+        { id: "p-nappy-cream", label: "Nappy rash cream" },
+        { id: "p-cillian-sleep-sack", label: "Cillian's sleep sack" },
+        { id: "p-cot-sheet", label: "Cot sheet (in case Airbnb doesn't have one)" },
+        { id: "p-snacks-pouches", label: "Snacks — pouches, rice cakes, raisins" },
+      ]},
+      { group: "Toys", items: [
+        { id: "p-yoto-nate", label: "Yoto for Nate" },
+        { id: "p-yoto-headphones", label: "Yoto headphones for Nate" },
+        { id: "p-yoto-cards", label: "Yoto cards for Nate" },
+        { id: "p-petsy-bluey-nate", label: "Petsy + Bluey (Nate's teddies)" },
+        { id: "p-petsy-cillian", label: "Petsy (Cillian's teddy)" },
+        { id: "p-books-nate", label: "Books for Nate" },
+      ]},
+      { group: "Tech", items: [
+        { id: "p-phone-chargers", label: "Phone chargers" },
+        { id: "p-battery-packs", label: "Battery packs" },
+        { id: "p-laptop", label: "Laptop" },
+        { id: "p-laptop-charger", label: "Laptop charger" },
+        { id: "p-headphones-adults", label: "Headphones (adults)" },
+      ]},
+      { group: "Toiletries", items: [
+        { id: "p-toothbrush-adults", label: "Toothbrushes — adults" },
+        { id: "p-toothbrush-kids", label: "Toothbrushes — boys" },
+        { id: "p-toothpaste", label: "Toothpaste" },
+        { id: "p-face-shavers", label: "Peter's face shavers" },
+        { id: "p-earplugs", label: "Earplugs — in case it's noisy" },
+      ]},
+      { group: "Meds", items: [
+        { id: "p-paracetamol-kids", label: "Children's paracetamol" },
+        { id: "p-ibuprofen-kids", label: "Children's ibuprofen" },
+        { id: "p-paracetamol-adults", label: "Adult paracetamol" },
+        { id: "p-ibuprofen-adults", label: "Adult ibuprofen" },
+        { id: "p-thermometer", label: "Thermometer" },
+        { id: "p-emma-meds", label: "Emma's tablets" },
+        { id: "p-mam-cpap", label: "Mam's CPAP machine + adaptor" },
+      ]},
+      { group: "Kitchen extras for the Airbnb", items: [
+        { id: "p-dishwasher-tabs", label: "Dishwasher tablets (couple in a ziploc)" },
+        { id: "p-nespresso-pods", label: "Nespresso pods (in case the Airbnb's machine has none)" },
+      ]},
+      { group: "Documents + admin", items: [
+        { id: "p-airbnb-code", label: "Airbnb access code + host phone saved" },
+        { id: "p-car-rental", label: "Car rental confirmation" },
+        { id: "p-air-nz-app", label: "Air NZ app — boarding passes ready" },
+        { id: "p-zoo-tickets", label: "Zoo tickets — booked Tue 26 May" },
+        { id: "p-ids", label: "IDs for the family" },
+      ]},
+    ];
+
+    const TODOS_DEFAULT = [
+      { id: "todo-zoo-tickets", text: "Tue 26 May 9am — buy Zoo Welcome Weekend tickets online" },
+      { id: "todo-indoor-pool", text: "Find a cool indoor swimming pool in Wellington (rainy-day backup)" },
+      { id: "todo-charley-noble", text: "Phone Charley Noble Fri afternoon — flag birthday for Sat 5pm walk-in" },
+      { id: "todo-zealandia", text: "Buy Zealandia timed-entry tickets online before Sunday" },
+      { id: "todo-weather-check", text: "Sun 24 May — pull a 10-day forecast and re-confirm Sat afternoon plan" },
+    ];
+
+    /* ================================================================ */
+    /* TRIP DETAILS                                                       */
+    /* ================================================================ */
+
+    const FLIGHTS = {
+      out: { code: "NZ409", from: "AKL", to: "WLG", dep: "08:10", arr: "09:20", term: "Domestic" },
+      back: { code: "NZ422", from: "WLG", to: "AKL", dep: "10:05", arr: "11:10", term: "Domestic" },
+    };
+    const CAR = { vehicle: "Toyota RAV4 AWD Hybrid", reg: "PBD296",
+      pickup: "Fri 29 May · 09:30 · Wellington Airport",
+      dropoff: "Mon 1 Jun · 09:00 · Wellington Airport",
+      cost: "$201.60 (3 days) + $114 insurance + $118 child seat + $35 location fee" };
+    const STAY = { address: "219 Rintoul Street, Berhampore, Wellington 6023",
+      host: "Trust Properties", checkin: "Fri 15:00", checkout: "Mon 10:00",
+      access: "Key safe", mapQ: "219 Rintoul Street Berhampore Wellington" };
+
+    /* ================================================================ */
+    /* ITINERARY                                                           */
+    /* ================================================================ */
+
+    const url = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
+    const DAYS = [
+      /* ---------- FRI ---------- */
+      { id: "fri", label: "Fri 29 May", title: "Arrival", sun: { rise: "07:11", set: "17:08" },
+        entries: [
+          { time: "05:15", kind: "wake", title: "Adults alarm",
+            body: "Coffee on, shower, get yourselves sorted before the boys are up." },
+          { time: "05:30", kind: "wake", title: "Boys up",
+            body: "Cillian: nappy + bottle. Nate: clothes laid out from the night before. Breakfast: toast + banana." },
+          { time: "05:50", kind: "logistics", title: "Final pack — bags by door",
+            body: "Checklist: 2 suitcases · 1 carry-on · buggy · 2 car seats · nappy bag · day pack · IDs · Airbnb code on phone." },
+          { time: "06:00", kind: "drive", title: "Out the door — 14 Tui St, Torbay",
+            place: { name: "14 Tui St → AKL Domestic", q: "14 Tui Street Torbay to Auckland Airport Domestic Terminal" },
+            body: "Northern Motorway → Harbour Bridge → SH20A. ~60 min in light Fri traffic. If SH1 backed up, take SH18/SH16.",
+            tip: "Cillian usually sleeps the leg. Nate gets a screen + headphones." },
+          { time: "07:00", kind: "drive", title: "Arrive Car Park O",
+            place: { name: "AKL Car Park O", q: "Car Park O Auckland Airport Domestic" },
+            body: "5 min walk to the domestic terminal. Buggy out for Cillian.",
+            tip: "Photograph the parking space + ticket." },
+          { time: "07:10", kind: "logistics", title: "Inside terminal — Air NZ check-in",
+            body: "Self-serve kiosks. Bag drop at the desks. No security ID for kids on domestic." },
+          { time: "07:20", kind: "food", title: "Airport coffee + bites",
+            body: "Whatever's open near the gate. Toilets before boarding." },
+          { time: "07:40", kind: "logistics", title: "Bag drop / check-in closes" },
+          { time: "08:10", kind: "fly", title: "NZ409 departs", body: "1h10m." },
+          { time: "09:20", kind: "fly", title: "Land Wellington",
+            body: "Bags off carousel (~10 min), walk to rental cars." },
+          { time: "09:30", kind: "drive", title: "Collect RAV4",
+            body: "Confirm fuel level, child seat fitted. Photograph any existing damage." },
+          { time: "10:15", kind: "food", title: "Brunch on arrival", swapKind: "breakfast",
+            placeRef: "floriditas",
+            body: "Drive into Te Aro (~15 min). Paid kerbside parking on Cuba St or Wilson Parking on Tory.",
+            tip: "Weekend brunch is walk-in only. Aim to be sat by 10:30." },
+          { time: "11:30", kind: "drive", title: "Harbour loop — Cillian's nap window",
+            place: { name: "Oriental Bay → Evans Bay → Miramar → the Airbnb", q: "Oriental Parade Wellington" },
+            body: "Scenic drive while Cillian sleeps. ~45 min." },
+          { time: "12:15", kind: "activity", title: "Te Papa", swapKind: "activity",
+            placeRef: "tepapa",
+            body: "Free for NZ residents. Earthquake house, colossal squid, Discovery Centre. 1.5–2 hrs. Buggy-friendly.",
+            tip: "Te Papa Café on Level 1 if anyone's peckish — saves a separate lunch stop." },
+          { time: "14:15", kind: "food", title: "Light bite (optional)", swapKind: "lunch",
+            placeRef: "homeMeal",
+            body: "Brunch was only 2 hours ago — only stop if anyone's hungry. Coffee + slice from Te Papa café works.",
+            tip: "Skip if no one's asking." },
+          { time: "14:45", kind: "logistics", title: "Supermarket run",
+            place: { name: "New World Newtown", q: "New World Newtown Wellington" },
+            body: "Stock the Airbnb: breakfast, milk, snacks, dinner ingredients, wine." },
+          { time: "15:00", kind: "stay", title: "Airbnb check-in",
+            place: { name: "219 Rintoul Street, Berhampore", q: STAY.mapQ } },
+          { time: "17:30", kind: "logistics", title: "Phone the takeaway order in",
+            body: "Easy first night. Pizza Pomodoro is closest. Order online or call. Pickup ~18:00." },
+          { time: "18:00", kind: "food", title: "Takeaway dinner", swapKind: "dinner",
+            placeRef: "pomodoro",
+            body: "Peter drives the 10 min to pick up while everyone settles in. Plates out, wine open.",
+            tip: "Alternatives: Dragons, KC Cafe, Little Penang, The Old Quarter. Or swap to 'Eat in at the Airbnb' if there's enough from the supermarket." },
+          { time: "19:30", kind: "wind", title: "Boys to bed" },
+        ] },
+
+      /* ---------- SAT ---------- */
+      { id: "sat", label: "Sat 30 May", title: "Zoo + birthday dinner",
+        sun: { rise: "07:12", set: "17:07" },
+        entries: [
+          { time: "05:00", kind: "wake", title: "Mam likely up",
+            body: "Plunger of coffee left ready from Friday night." },
+          { time: "06:00", kind: "wake", title: "Boys up", body: "Cartoons + cereal while the adults shower." },
+          { time: "07:30", kind: "food", title: "Breakfast", swapKind: "breakfast",
+            placeRef: "homeMeal",
+            body: "Default: at the Airbnb — toast, eggs, fruit, yoghurt. Pack zoo snacks while you're at it.",
+            tip: "Swap to brunch out (Loretta, Floriditas, Maranui) if you'd rather start the day in town. Sat by 8:00 to make the 9:30 zoo opening." },
+          { time: "09:00", kind: "logistics", title: "Out the door",
+            body: "Buggy, change bag, jackets, beanies. Boys in car seats." },
+          { time: "09:20", kind: "drive", title: "Drive to the Zoo",
+            place: { name: "Wellington Zoo", q: "Wellington Zoo" },
+            body: "5 min from Newtown. Park on Daniell St or Mansfield St." },
+          { time: "09:30", kind: "activity", title: "Wellington Zoo opens", swapKind: "activity",
+            placeRef: "zoo",
+            body: "First through the gate. Aim for the kiwi house early.",
+            tip: "TICKETS ON SALE TUE 26 MAY · Welcome Weekend $10 adult / $5 child." },
+          { time: "12:00", kind: "drive", title: "Back to the Airbnb",
+            body: "5 min drive. Transfer Cillian buggy → cot." },
+          { time: "12:15", kind: "food", title: "Lunch", swapKind: "lunch",
+            placeRef: "homeMeal",
+            body: "Default: sandwiches, fruit, cheese at the Airbnb so Cillian can nap properly.",
+            tip: "Swap to yum cha out (Dragons), or pickup takeaway (Pizza Pomodoro, KC Cafe, Old Quarter banh mi)." },
+          { time: "14:30", kind: "activity", title: "Afternoon — choose by weather", swapKind: "activity",
+            options: ["cablecar", "mtvic", "otari", "chocolate", "bucketfountain"],
+            body: "Clear: Mt Vic, or the Cable Car + walk down through the Botanic Garden. Overcast: Otari canopy walk. Wet: Wellington Chocolate Factory.",
+            tip: "Cable Car + Botanic Garden ~90 min if you walk down. Others 30–60 min each." },
+          { time: "16:30", kind: "stay", title: "Home — bath the boys early",
+            body: "Clean and dressed for dinner. PJs in the bag for the drive home." },
+          { time: "17:10", kind: "drive", title: "Drive into town",
+            body: "Peter on driving duty (not drinking). ~15 min to Post Office Square." },
+          { time: "17:30", kind: "birthday", title: "Birthday dinner — arrive as it opens", swapKind: "dinner-occasion",
+            placeRef: "charley",
+            body: "Charley Noble dinner is walk-in only — arrive at 5pm sharp to secure a table. Peter driving, so Mam and Emma have the run of the wine list.",
+            tip: "Phone Friday afternoon to ask if they can flag a candle on dessert." },
+          { time: "20:00", kind: "drive", title: "Drive home",
+            body: "Peter at the wheel. Boys likely asleep in their car seats — transfer gently." },
+        ] },
+
+      /* ---------- SUN ---------- */
+      { id: "sun", label: "Sun 31 May", title: "Coast + Zealandia",
+        sun: { rise: "07:13", set: "17:07" },
+        entries: [
+          { time: "05:00", kind: "wake", title: "Mam likely up" },
+          { time: "06:00", kind: "wake", title: "Boys up" },
+          { time: "07:00", kind: "logistics", title: "Out the door",
+            body: "Layers + wellies for the beach walk after." },
+          { time: "07:30", kind: "food", title: "Breakfast at Maranui", swapKind: "breakfast",
+            placeRef: "maranui",
+            body: "No bookings. Walk in by 7:30 to beat the queue. Sit upstairs if you can." },
+          { time: "09:00", kind: "activity", title: "Lyall Bay beach walk", swapKind: "activity",
+            placeRef: "lyallbay",
+            body: "Walk the length, watch planes land, collect stones. 30–45 min." },
+          { time: "10:00", kind: "drive", title: "Drive home — Cillian's car nap",
+            body: "Slow loop via Island Bay (5 min extra) if he's deep asleep." },
+          { time: "11:30", kind: "food", title: "Lunch", swapKind: "lunch",
+            placeRef: "homeMeal",
+            body: "Default: toasties, soup, fruit at the Airbnb so Cillian can wake naturally.",
+            tip: "Swap to lunch out (KC Cafe takeaway, Dragons yum cha if before 2:30pm)." },
+          { time: "13:30", kind: "activity", title: "Zealandia — Lake Loop", swapKind: "activity",
+            placeRef: "zealandia",
+            body: "Buy timed-entry tickets online before you leave. 15 min drive via Karori." },
+          { time: "16:00", kind: "stay", title: "Home — slowdown", body: "Tea, snacks, telly." },
+          { time: "17:30", kind: "food", title: "Dinner", swapKind: "dinner",
+            placeRef: "homeMeal",
+            body: "Default: cook together — fresh gnocchi from New World, butter + sage + parmesan, garlic bread.",
+            tip: "Swap to dinner out (Dragons, Loretta, Kazu, Koji, Oikos), or takeaway (Pizza Pomodoro, KC Cafe)." },
+          { time: "19:00", kind: "wind", title: "Bath, books, bed" },
+        ] },
+
+      /* ---------- MON ---------- */
+      { id: "mon", label: "Mon 1 Jun", title: "Departure",
+        sun: { rise: "07:14", set: "17:07" },
+        entries: [
+          { time: "06:00", kind: "wake", title: "Adults alarm" },
+          { time: "06:30", kind: "wake", title: "Boys up" },
+          { time: "07:00", kind: "food", title: "Breakfast at the Airbnb",
+            body: "Eggs + toast. Strip the beds if the host has asked." },
+          { time: "08:00", kind: "logistics", title: "Final tidy + bags to car",
+            body: "Bins out. Wipe surfaces. Lock up. Key back in the safe." },
+          { time: "08:15", kind: "drive", title: "Leave Airbnb",
+            place: { name: "219 Rintoul → WLG Airport", q: "219 Rintoul Street Berhampore to Wellington Airport" },
+            body: "~15 min drive. Coffee Supreme inside the terminal." },
+          { time: "08:35", kind: "drive", title: "Drop the RAV4 back",
+            body: "Photograph fuel gauge + odometer before handing keys back." },
+          { time: "08:45", kind: "logistics", title: "Walk to terminal" },
+          { time: "08:55", kind: "logistics", title: "Air NZ check-in / bag drop",
+            body: "Closes 09:35 — be through this with time to spare." },
+          { time: "09:35", kind: "logistics", title: "Bag drop closes",
+            body: "Last call. If you've followed the timeline, you're already through." },
+          { time: "09:30", kind: "logistics", title: "Through security" },
+          { time: "09:45", kind: "fly", title: "Boarding" },
+          { time: "10:05", kind: "fly", title: "NZ422 departs", body: "Touchdown AKL 11:10." },
+        ] },
+    ];
+
+    DAYS.forEach(day => day.entries.forEach(e => { e.id = `${day.id}-${e.time.replace(":", "")}`; }));
+
+    /* ================================================================ */
+    /* WEATHER                                                             */
+    /* ================================================================ */
+
+    const WMO_CODES = {
+      0: { label: "Clear", icon: "☀" }, 1: { label: "Mostly clear", icon: "🌤" },
+      2: { label: "Partly cloudy", icon: "⛅" }, 3: { label: "Overcast", icon: "☁" },
+      45: { label: "Fog", icon: "🌫" }, 48: { label: "Fog", icon: "🌫" },
+      51: { label: "Light drizzle", icon: "🌦" }, 53: { label: "Drizzle", icon: "🌦" }, 55: { label: "Heavy drizzle", icon: "🌧" },
+      61: { label: "Light rain", icon: "🌦" }, 63: { label: "Rain", icon: "🌧" }, 65: { label: "Heavy rain", icon: "🌧" },
+      71: { label: "Light snow", icon: "🌨" }, 73: { label: "Snow", icon: "🌨" }, 75: { label: "Heavy snow", icon: "❄" },
+      80: { label: "Showers", icon: "🌦" }, 81: { label: "Showers", icon: "🌧" }, 82: { label: "Heavy showers", icon: "🌧" },
+      95: { label: "Thunderstorm", icon: "⛈" }, 96: { label: "Storm + hail", icon: "⛈" }, 99: { label: "Storm + hail", icon: "⛈" },
+    };
+    const TRIP_DATES = ["2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01"];
+    const DAY_LABEL = { "2026-05-29": "Fri", "2026-05-30": "Sat", "2026-05-31": "Sun", "2026-06-01": "Mon" };
+    const WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=-41.2924&longitude=174.7787&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,weather_code&timezone=Pacific%2FAuckland&forecast_days=16";
+
+    function WeatherWidget() {
+      const [data, setData] = useState(null);
+      const [error, setError] = useState(null);
+      const [fetchedAt, setFetchedAt] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const load = useCallback(async (force) => {
+        try {
+          setLoading(true);
+          const cached = localStorage.getItem("wlg-weather-v1");
+          if (!force && cached) {
+            const parsed = JSON.parse(cached);
+            const age = Date.now() - parsed.at;
+            if (age < 12 * 60 * 60 * 1000) {
+              setData(parsed.data); setFetchedAt(parsed.at); setLoading(false); return;
+            }
+          }
+          const res = await fetch(WEATHER_URL);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const json = await res.json();
+          const at = Date.now();
+          localStorage.setItem("wlg-weather-v1", JSON.stringify({ data: json, at }));
+          setData(json); setFetchedAt(at); setError(null);
+        } catch (e) {
+          const cached = localStorage.getItem("wlg-weather-v1");
+          if (cached) { const parsed = JSON.parse(cached); setData(parsed.data); setFetchedAt(parsed.at); }
+          setError(e.message || "Couldn't reach Open-Meteo");
+        } finally { setLoading(false); }
+      }, []);
+      useEffect(() => {
+        load(false);
+        const id = setInterval(() => load(true), 6 * 60 * 60 * 1000);
+        return () => clearInterval(id);
+      }, [load]);
+      const days = useMemo(() => {
+        if (!data || !data.daily) return [];
+        const { time, temperature_2m_max, temperature_2m_min, precipitation_probability_max, precipitation_sum, wind_speed_10m_max, weather_code } = data.daily;
+        return time.map((d, i) => ({ date: d, tmax: temperature_2m_max[i], tmin: temperature_2m_min[i],
+          pop: precipitation_probability_max[i], precip: precipitation_sum[i],
+          wind: wind_speed_10m_max[i], code: weather_code[i] })).filter(d => TRIP_DATES.includes(d.date));
+      }, [data]);
+      const updated = fetchedAt ? new Date(fetchedAt).toLocaleString("en-NZ", { dateStyle: "medium", timeStyle: "short" }) : null;
+      return (
+        <section className="mb-8">
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="serif text-2xl teal">Wellington forecast</h2>
+            <div className="text-xs ink-mute flex items-center gap-3">
+              {updated && <span>Updated {updated}</span>}
+              <button onClick={() => load(true)} className="link-underline">refresh</button>
+            </div>
+          </div>
+          {loading && !days.length && <div className="card p-5 text-sm ink-soft">Loading forecast from Open-Meteo…</div>}
+          {error && !days.length && (
+            <div className="card p-5 text-sm">
+              <div className="font-semibold ink">Couldn't reach Open-Meteo.</div>
+              <div className="ink-soft mt-1">If you opened this file by double-clicking, run <span className="mono">python3 -m http.server</span> in this folder and open <span className="mono">http://localhost:8000</span> instead.</div>
+            </div>
+          )}
+          {days.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {days.map(d => {
+                const code = WMO_CODES[d.code] || { label: "—", icon: "·" };
+                return (
+                  <div key={d.date} className="card p-4">
+                    <div className="flex items-baseline justify-between">
+                      <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mono">{DAY_LABEL[d.date]} · {d.date.slice(5)}</div>
+                      <div className="text-2xl">{code.icon}</div>
+                    </div>
+                    <div className="serif text-xl ink mt-2">{Math.round(d.tmax)}° <span className="ink-mute text-base">/ {Math.round(d.tmin)}°</span></div>
+                    <div className="text-xs ink-soft mt-1">{code.label}</div>
+                    <div className="text-xs ink-mute mt-2">
+                      <div>Rain · {d.pop ?? 0}%</div>
+                      <div>Wind · {Math.round(d.wind)} km/h</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* SHARED                                                              */
+    /* ================================================================ */
+
+    const KIND = {
+      wake: { label: "wake", bg: "var(--cream-deep)", fg: "var(--ink-soft)" },
+      logistics: { label: "logistics", bg: "var(--cream-deep)", fg: "var(--ink-soft)" },
+      drive: { label: "drive", bg: "var(--cream-deep)", fg: "var(--teal-deep)" },
+      fly: { label: "fly", bg: "var(--cream-deep)", fg: "var(--teal-deep)" },
+      food: { label: "food", bg: "var(--gold-soft)", fg: "var(--gold)" },
+      activity: { label: "activity", bg: "var(--coral-soft)", fg: "var(--teal-deep)" },
+      stay: { label: "stay", bg: "var(--cream-deep)", fg: "var(--ink-soft)" },
+      wind: { label: "wind down", bg: "var(--cream-deep)", fg: "var(--ink-soft)" },
+      birthday: { label: "birthday", bg: "var(--coral)", fg: "#fff" },
+    };
+    function Pill({ kind }) {
+      const k = KIND[kind] || KIND.logistics;
+      return <span className="pill" style={{ background: k.bg, color: k.fg }}>{k.label}</span>;
+    }
+    function Price({ level }) {
+      const d = "$".repeat(level || 1); const g = "$".repeat(4 - (level || 1));
+      return <span className="mono text-sm"><span style={{ color: "var(--teal)" }}>{d}</span><span style={{ color: "var(--ink-mute)" }}>{g}</span></span>;
+    }
+    function PlaceImg({ src, alt, name, small }) {
+      const [err, setErr] = useState(false);
+      if (err || !src) {
+        return (
+          <div className={`place-img ${small ? "place-img-sm" : ""}`} style={{ position: "relative" }} aria-label={alt}>
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(247,241,230,0.85)", fontFamily: "Fraunces, serif", fontSize: small ? 16 : 22, padding: 24, textAlign: "center" }}>
+              {name || alt}
+            </div>
+          </div>
+        );
+      }
+      return <img src={src} alt={alt} className={`place-img ${small ? "place-img-sm" : ""}`} loading="lazy" onError={() => setErr(true)} />;
+    }
+
+    function getSwapCandidates(swapKind) {
+      const all = Object.values(PLACES);
+      if (swapKind === "breakfast") return all.filter(p => p.meal && p.meal.includes("breakfast"));
+      if (swapKind === "lunch") return all.filter(p => p.meal && p.meal.includes("lunch"));
+      if (swapKind === "dinner") return all.filter(p => p.meal && p.meal.includes("dinner"));
+      if (swapKind === "dinner-occasion") return all.filter(p => p.meal && p.meal.includes("dinner") && p.kidFriendly !== false);
+      if (swapKind === "activity") return all.filter(p => p.kind === "activity");
+      return [];
+    }
+
+    /* Sort places: favourites first */
+    function sortByFavourites(places, favourites) {
+      return [...places].sort((a, b) => {
+        const fa = favourites.has(a.id) ? 1 : 0;
+        const fb = favourites.has(b.id) ? 1 : 0;
+        return fb - fa;
+      });
+    }
+
+    /* ================================================================ */
+    /* ENTRY                                                               */
+    /* ================================================================ */
+
+    function Entry({ entry, picks, onOpen, onSwap, onResetPick }) {
+      const userPickId = picks[entry.id];
+      const defaultPlaceId = entry.placeRef || (entry.options && entry.options[0]);
+      const currentPlaceId = userPickId || defaultPlaceId;
+      const place = currentPlaceId ? P(currentPlaceId) : null;
+      const isBirthday = entry.kind === "birthday";
+      const isOverridden = userPickId && userPickId !== defaultPlaceId;
+      const canSwap = !!entry.swapKind;
+      const cardClick = () => {
+        if (place) onOpen({ type: "place", place });
+        else if (entry.place) onOpen({ type: "place", place: { name: entry.place.name, address: entry.place.name, blurb: entry.body || "" } });
+      };
+      return (
+        <div className="relative pl-12 pb-5">
+          <div className="timeline-dot" style={{ top: 6, borderColor: isBirthday ? "var(--coral)" : (isOverridden ? "var(--coral)" : "var(--teal)") }} />
+          <div className={`card ${place || entry.place ? "clickable" : ""}`}
+               style={isBirthday ? { boxShadow: "0 0 0 2px var(--coral)" } : null}
+               onClick={place || entry.place ? cardClick : undefined}>
+            {place && place.img && <PlaceImg src={place.img} alt={place.name} name={place.name} />}
+            <div className="p-4">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="mono text-sm" style={{ color: "var(--teal-deep)" }}>{entry.time}</span>
+                <Pill kind={entry.kind} />
+                {place && <span className="text-xs ink-mute">{place.category}</span>}
+                {isOverridden && <span className="pill" style={{ background: "var(--coral-soft)", color: "var(--teal-deep)" }}>your pick</span>}
+              </div>
+              <div className="serif text-lg ink leading-snug">{entry.title}</div>
+              {place && (
+                <div className="text-sm mt-1">
+                  <span style={{ color: "var(--teal)" }} className="font-medium">{place.name}</span>
+                  <span className="ink-mute"> · </span>
+                  <a href={url(place.address || place.name)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="ink-soft link-underline">map</a>
+                  {place.website && <>
+                    <span className="ink-mute"> · </span>
+                    <a href={place.website} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="ink-soft link-underline">website</a>
+                  </>}
+                </div>
+              )}
+              {entry.place && !place && (
+                <a href={url(entry.place.q)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-sm teal link-underline inline-block mt-1">{entry.place.name} · map</a>
+              )}
+              {entry.body && <p className="mt-2 text-sm ink-soft leading-relaxed">{entry.body}</p>}
+              {entry.tip && (
+                <div className="mt-3 text-xs ink-soft bg-cream-deep border border-line rounded-md px-3 py-2">
+                  <span className="font-semibold ink">Note · </span>{entry.tip}
+                </div>
+              )}
+              {canSwap && (
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+                  <button onClick={(e) => { e.stopPropagation(); onSwap(entry); }} className="px-3 py-1.5 rounded-md border border-line bg-cream-deep ink hover:border-line-strong font-medium">Swap →</button>
+                  {isOverridden && <button onClick={(e) => { e.stopPropagation(); onResetPick(entry.id); }} className="ink-soft link-underline">Reset to default</button>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Day({ day, picks, onOpen, onSwap, onResetPick }) {
+      return (
+        <section>
+          <div className="mb-6">
+            <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mono">{day.label}</div>
+            <h2 className="serif text-3xl md:text-4xl teal mt-1">{day.title}</h2>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs ink-soft">
+              <div>Sunrise {day.sun.rise} · Sunset {day.sun.set}</div>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="timeline-rail" />
+            {day.entries.map(e => <Entry key={e.id} entry={e} picks={picks} onOpen={onOpen} onSwap={onSwap} onResetPick={onResetPick} />)}
+          </div>
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* PLACE CARD with favourite heart                                     */
+    /* ================================================================ */
+
+    function PlaceCard({ place, onOpen, selected, small, isFavourite, onToggleFavourite }) {
+      return (
+        <div className={`card clickable ${selected ? "ring-teal" : ""}`} style={{ position: "relative" }} onClick={() => onOpen(place)}>
+          <PlaceImg src={place.img} alt={place.name} name={place.name} small={small} />
+          {onToggleFavourite && (
+            <button className="fav-btn" onClick={(e) => { e.stopPropagation(); onToggleFavourite(place.id); }}
+                    aria-label={isFavourite ? "Remove from favourites" : "Add to favourites"}
+                    title={isFavourite ? "Remove from favourites" : "Add to favourites"}>
+              {isFavourite ? <span style={{ color: "var(--coral)" }}>♥</span> : <span style={{ color: "var(--ink-mute)" }}>♡</span>}
+            </button>
+          )}
+          <div className="p-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs ink-mute">{place.category}</div>
+              {place.priceLevel ? <div className="mono text-sm ink-soft">{place.priceLevel}</div> : place.price && <Price level={place.price} />}
+            </div>
+            <div className="serif text-lg ink mt-1 leading-snug">{place.name}</div>
+            <div className="text-sm ink-soft mt-1">{place.blurb}</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {place.homeStyle && <span className="pill" style={{ background: "var(--sage)", color: "#fff" }}>eat in</span>}
+              {place.takeaway && <span className="pill" style={{ background: "var(--gold)", color: "#fff" }}>takeaway</span>}
+              {place.kidFriendly && <span className="pill" style={{ background: "var(--sage-soft)", color: "var(--teal-deep)" }}>kid-friendly</span>}
+              {place.occasion && <span className="pill" style={{ background: "var(--coral-soft)", color: "var(--teal-deep)" }}>occasion</span>}
+              {place.booking && place.booking.toLowerCase().includes("walk-in") && (
+                <span className="pill" style={{ background: "var(--gold-soft)", color: "var(--gold)" }}>walk-in only</span>
+              )}
+              {selected && <span className="pill" style={{ background: "var(--teal)", color: "#fff" }}>current pick</span>}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ================================================================ */
+    /* DETAIL SHEET                                                        */
+    /* ================================================================ */
+
+    function DetailSheet({ open, payload, onClose, onOpen, picks, onPickForEntry, favourites, onToggleFavourite }) {
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      const place = payload && payload.type === "place" ? payload.place : null;
+      const swap = payload && payload.type === "swap" ? payload : null;
+
+      let swapCandidates = [];
+      let currentForSwap = null;
+      if (swap) {
+        swapCandidates = getSwapCandidates(swap.entry.swapKind);
+        const userPickId = picks[swap.entry.id];
+        const defaultPlaceId = swap.entry.placeRef || (swap.entry.options && swap.entry.options[0]);
+        currentForSwap = userPickId || defaultPlaceId;
+        const optionIds = swap.entry.options || [];
+        // Sort: current first, then favourites, then options, then rest
+        swapCandidates = [...swapCandidates].sort((a, b) => {
+          const sa = a.id === currentForSwap ? -100 : (favourites.has(a.id) ? -50 : (optionIds.includes(a.id) ? -10 : 0));
+          const sb = b.id === currentForSwap ? -100 : (favourites.has(b.id) ? -50 : (optionIds.includes(b.id) ? -10 : 0));
+          return sa - sb;
+        });
+      }
+
+      return (
+        <>
+          <div className="scrim" data-open={open} onClick={onClose} />
+          <aside className="sheet" data-open={open} aria-hidden={!open}>
+            {place && (
+              <>
+                <div style={{ position: "relative" }}>
+                  {place.img && <PlaceImg src={place.img} alt={place.name} name={place.name} />}
+                  {onToggleFavourite && place.id && PLACES[place.id] && (
+                    <button className="fav-btn" onClick={() => onToggleFavourite(place.id)}
+                            aria-label={favourites.has(place.id) ? "Remove from favourites" : "Add to favourites"}>
+                      {favourites.has(place.id) ? <span style={{ color: "var(--coral)" }}>♥</span> : <span style={{ color: "var(--ink-mute)" }}>♡</span>}
+                    </button>
+                  )}
+                </div>
+                <div className="p-6">
+                  <button className="text-xs ink-soft mono mb-4" onClick={onClose}>← close</button>
+                  <div className="text-xs ink-mute">{place.category}</div>
+                  <h2 className="serif text-3xl teal mt-1">{place.name}</h2>
+                  {place.blurb && <p className="mt-3 ink-soft leading-relaxed">{place.blurb}</p>}
+                  <div className="mt-5 grid grid-cols-1 gap-3 text-sm">
+                    {place.address && <Row label="Address"><a href={url(place.address)} target="_blank" rel="noreferrer" className="teal link-underline">{place.address}</a></Row>}
+                    {place.hours && <Row label="Hours">{place.hours}</Row>}
+                    {place.phone && <Row label="Phone"><a href={`tel:${place.phone.replace(/\s+/g, '')}`} className="teal link-underline">{place.phone}</a></Row>}
+                    {place.website && <Row label="Website"><a href={place.website} target="_blank" rel="noreferrer" className="teal link-underline">{place.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></Row>}
+                    {place.ticket && <Row label="Tickets">{place.ticket}</Row>}
+                    {place.duration && <Row label="Duration">{place.duration}</Row>}
+                    {place.fromBase && <Row label="From the Airbnb">{place.fromBase}</Row>}
+                  </div>
+                  {place.booking && (
+                    <div className="mt-5 card p-4 bg-coral-soft border-line">
+                      <div className="text-[11px] uppercase tracking-widest font-semibold mb-1" style={{ color: "var(--teal-deep)" }}>Booking</div>
+                      <div className="ink text-sm">{place.booking}</div>
+                    </div>
+                  )}
+                  {(place.order || place.kidNote) && (
+                    <div className="mt-3 space-y-3">
+                      {place.order && (
+                        <div className="card p-4 bg-cream-deep border-line">
+                          <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mb-1">What to order / do</div>
+                          <div className="ink text-sm">{place.order}</div>
+                        </div>
+                      )}
+                      {place.kidNote && (
+                        <div className="card p-4 bg-sage-soft border-line">
+                          <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mb-1">Kids</div>
+                          <div className="ink text-sm">{place.kidNote}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <a href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(place.name + " Wellington")}`} target="_blank" rel="noreferrer" className="chip" style={{ background: "var(--cream-deep)" }}>more photos →</a>
+                    {place.website && <a href={place.website} target="_blank" rel="noreferrer" className="chip" style={{ background: "var(--cream-deep)" }}>visit website →</a>}
+                  </div>
+                </div>
+              </>
+            )}
+            {swap && (
+              <div className="p-6">
+                <button className="text-xs ink-soft mono mb-4" onClick={onClose}>← close</button>
+                <div className="text-[11px] uppercase tracking-widest ink-mute font-semibold mono">Swap · {swap.entry.time}</div>
+                <h2 className="serif text-2xl teal mt-1">{swap.entry.title}</h2>
+                <p className="text-sm ink-soft mt-1">
+                  {swapCandidates.length} options. Tap one to lock it in. Favourites at the top.
+                </p>
+                <div className="mt-4 grid grid-cols-1 gap-3">
+                  {swapCandidates.map(p => (
+                    <PlaceCard key={p.id} place={p} small selected={p.id === currentForSwap}
+                      isFavourite={favourites.has(p.id)} onToggleFavourite={onToggleFavourite}
+                      onOpen={(pl) => { onPickForEntry(swap.entry.id, pl.id); onOpen({ type: "place", place: pl }); }} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+        </>
+      );
+    }
+
+    function Row({ label, children }) {
+      return (
+        <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+          <div className="text-[11px] uppercase tracking-widest ink-mute font-semibold pt-0.5">{label}</div>
+          <div className="ink">{children}</div>
+        </div>
+      );
+    }
+
+    /* ================================================================ */
+    /* PACKING CHECKLIST                                                   */
+    /* ================================================================ */
+
+    function PackingChecklist({ checked, onToggle, onReset }) {
+      const totalItems = PACKING_LIST.reduce((sum, g) => sum + g.items.length, 0);
+      const doneCount = PACKING_LIST.reduce((sum, g) => sum + g.items.filter(i => checked.has(i.id)).length, 0);
+      const pct = Math.round((doneCount / totalItems) * 100);
+      return (
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h3 className="serif text-2xl teal">Packing checklist</h3>
+            <button onClick={onReset} className="text-xs ink-soft link-underline">Reset all</button>
+          </div>
+          <div className="card p-3 mb-4 bg-cream-deep border-line">
+            <div className="flex items-center justify-between text-sm">
+              <span className="ink"><span className="font-semibold">{doneCount}</span> / {totalItems} packed</span>
+              <span className="mono text-xs ink-soft">{pct}%</span>
+            </div>
+            <div style={{ height: 6, background: "rgba(0,0,0,0.06)", borderRadius: 999, marginTop: 8, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: "var(--teal)", transition: "width 200ms" }} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {PACKING_LIST.map((g, i) => {
+              const groupDone = g.items.filter(it => checked.has(it.id)).length;
+              return (
+                <div key={i} className="card p-5">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mono">{g.group}</div>
+                    <span className="text-xs ink-mute mono">{groupDone}/{g.items.length}</span>
+                  </div>
+                  <div>
+                    {g.items.map(item => {
+                      const isDone = checked.has(item.id);
+                      return (
+                        <label key={item.id} className={`checkitem ${isDone ? "done" : ""}`}>
+                          <input type="checkbox" checked={isDone} onChange={() => onToggle(item.id)} />
+                          <span className="label text-sm ink">{item.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* TODO LIST                                                            */
+    /* ================================================================ */
+
+    function TodoList({ todos, onToggle, onAdd, onRemove }) {
+      const [input, setInput] = useState("");
+      const submit = (e) => {
+        e.preventDefault();
+        const text = input.trim();
+        if (!text) return;
+        onAdd(text);
+        setInput("");
+      };
+      const doneCount = todos.filter(t => t.done).length;
+      return (
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h3 className="serif text-2xl teal">To-do</h3>
+            <span className="text-xs ink-mute mono">{doneCount}/{todos.length} done</span>
+          </div>
+          <div className="card p-5">
+            <form onSubmit={submit} className="flex gap-2 mb-4">
+              <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Add a new task…"
+                className="flex-1 px-3 py-2 rounded-md border border-line bg-white text-sm" />
+              <button type="submit" className="px-4 py-2 rounded-md bg-teal text-cream text-sm font-semibold">Add</button>
+            </form>
+            <div>
+              {todos.map(t => (
+                <div key={t.id} className={`checkitem ${t.done ? "done" : ""}`}>
+                  <input type="checkbox" checked={t.done} onChange={() => onToggle(t.id)} />
+                  <span className="label text-sm ink flex-1">{t.text}</span>
+                  <button onClick={() => onRemove(t.id)} className="text-xs ink-mute hover:ink-soft" title="Remove">✕</button>
+                </div>
+              ))}
+              {todos.length === 0 && <div className="text-sm ink-mute py-4 text-center">No tasks yet.</div>}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* LOGISTICS PAGE                                                       */
+    /* ================================================================ */
+
+    function LogisticsCard({ label, title, body, sub, href }) {
+      const Wrap = href ? "a" : "div";
+      const props = href ? { href, target: "_blank", rel: "noreferrer", className: "card p-5 block clickable" } : { className: "card p-5" };
+      return (
+        <Wrap {...props}>
+          <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mono">{label}</div>
+          <div className="serif text-xl mt-1 teal">{title}</div>
+          <div className="mt-2 text-sm ink">{body}</div>
+          {sub && <div className="mt-2 text-xs ink-soft">{sub}</div>}
+        </Wrap>
+      );
+    }
+
+    function LogisticsPage({ packingChecked, onTogglePacking, onResetPacking, todos, onToggleTodo, onAddTodo, onRemoveTodo }) {
+      return (
+        <section>
+          <div className="mb-6"><h2 className="serif text-3xl teal">Logistics</h2></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LogisticsCard label="Outbound flight · Fri 29 May"
+              title={`${FLIGHTS.out.code} · ${FLIGHTS.out.from} → ${FLIGHTS.out.to}`}
+              body={`${FLIGHTS.out.dep} → ${FLIGHTS.out.arr} · 1h10m`}
+              sub="Bag drop closes 07:40. Aim to land Car Park O 07:00." />
+            <LogisticsCard label="Return flight · Mon 1 Jun"
+              title={`${FLIGHTS.back.code} · ${FLIGHTS.back.from} → ${FLIGHTS.back.to}`}
+              body={`${FLIGHTS.back.dep} → ${FLIGHTS.back.arr} · 1h5m`}
+              sub="Bag drop closes 09:35. Drop car back 08:35." />
+            <LogisticsCard label="Rental car" title={CAR.vehicle}
+              body={`Reg ${CAR.reg} · ${CAR.pickup} → ${CAR.dropoff}`} sub={CAR.cost} />
+            <LogisticsCard label="Airbnb" title="219 Rintoul Street, Berhampore"
+              body={`Hosted by ${STAY.host} · Check-in ${STAY.checkin} · Checkout ${STAY.checkout} · ${STAY.access}`}
+              sub="10 min drive to airport · 5 min drive to Wellington Zoo · 4 min drive to New World Newtown."
+              href={url(STAY.mapQ)} />
+          </div>
+
+          <div className="mt-8">
+            <h3 className="serif text-2xl teal mb-3">Torbay to Auckland Domestic Airport · Friday</h3>
+            <div className="card p-5">
+              <div className="text-sm ink-soft mb-3">14 Tui Street, Torbay → Car Park O, AKL Domestic terminal (5 min walk). ~60 min drive.</div>
+              <ol className="space-y-2 text-sm">
+                {[
+                  ["05:15", "Adults alarm"], ["05:30", "Boys up · breakfast + dressed"],
+                  ["05:50", "Final pack — bags by door"], ["06:00", "Leave Tui St"],
+                  ["07:00", "Arrive Car Park O · walk to terminal"],
+                  ["07:10", "Inside terminal · Air NZ check-in"],
+                  ["07:20", "Coffee + toilet stop"], ["07:40", "Bag drop closes"],
+                  ["07:50", "Boarding"], ["08:10", "NZ409 departs"],
+                ].map(([t, what]) => (
+                  <li key={t} className="grid grid-cols-[70px_1fr] gap-3">
+                    <span className="mono text-sm" style={{ color: "var(--teal-deep)" }}>{t}</span>
+                    <span className="ink">{what}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h3 className="serif text-2xl teal mb-3">Airbnb to Wellington Airport · Monday</h3>
+            <div className="card p-5">
+              <div className="text-sm ink-soft mb-3">219 Rintoul St → WLG Airport · ~15 min · drop car back by 08:35.</div>
+              <ol className="space-y-2 text-sm">
+                {[
+                  ["06:00", "Adults alarm"], ["06:30", "Boys up"],
+                  ["07:00", "Breakfast at Airbnb"], ["08:00", "Final tidy + bags to car"],
+                  ["08:15", "Leave Airbnb"], ["08:35", "Drop RAV4"],
+                  ["08:55", "Air NZ check-in"], ["09:30", "Through security"],
+                  ["09:35", "Bag drop closes (last call)"],
+                  ["09:45", "Boarding"], ["10:05", "NZ422 departs"],
+                ].map(([t, what]) => (
+                  <li key={t} className="grid grid-cols-[70px_1fr] gap-3">
+                    <span className="mono text-sm" style={{ color: "var(--teal-deep)" }}>{t}</span>
+                    <span className="ink">{what}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <TodoList todos={todos} onToggle={onToggleTodo} onAdd={onAddTodo} onRemove={onRemoveTodo} />
+          </div>
+
+          <div className="mt-10">
+            <PackingChecklist checked={packingChecked} onToggle={onTogglePacking} onReset={onResetPacking} />
+          </div>
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* FOOD + ACTIVITIES PAGES                                              */
+    /* ================================================================ */
+
+    function ChipRow({ label, value, setValue, options }) {
+      return (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] uppercase tracking-widest ink-mute font-semibold mono w-16 shrink-0">{label}</span>
+          <div className="flex flex-wrap gap-2">
+            {options.map(o => <button key={o.v} className="chip" data-active={String(value) === String(o.v)} onClick={() => setValue(o.v)}>{o.l}</button>)}
+          </div>
+        </div>
+      );
+    }
+
+    function FoodPage({ onOpen, favourites, onToggleFavourite }) {
+      const all = Object.values(PLACES).filter(p => p.meal);
+      const [meal, setMeal] = useState("all");
+      const [cuisine, setCuisine] = useState("all");
+      const [price, setPrice] = useState("all");
+      const [kids, setKids] = useState(false);
+      const [favsOnly, setFavsOnly] = useState(false);
+      const cuisines = ["all", ...Array.from(new Set(all.map(p => p.cuisine)))];
+      let filtered = all.filter(p => {
+        if (meal !== "all" && !p.meal.includes(meal)) return false;
+        if (cuisine !== "all" && p.cuisine !== cuisine) return false;
+        if (price !== "all" && p.price !== Number(price)) return false;
+        if (kids && !p.kidFriendly) return false;
+        if (favsOnly && !favourites.has(p.id)) return false;
+        return true;
+      });
+      filtered = sortByFavourites(filtered, favourites);
+      return (
+        <section>
+          <div className="mb-4">
+            <h2 className="serif text-3xl teal">Food</h2>
+            <p className="text-sm ink-soft mt-1">{filtered.length} of {all.length} places · favourites pinned to the top.</p>
+          </div>
+          <div className="space-y-3 mb-6">
+            <ChipRow label="Meal" value={meal} setValue={setMeal} options={[
+              { v: "all", l: "All" }, { v: "breakfast", l: "Breakfast" },
+              { v: "lunch", l: "Lunch" }, { v: "dinner", l: "Dinner" }, { v: "drinks", l: "Drinks" } ]} />
+            <ChipRow label="Cuisine" value={cuisine} setValue={setCuisine} options={cuisines.map(c => ({ v: c, l: c === "all" ? "All" : c }))} />
+            <ChipRow label="Price" value={price} setValue={setPrice} options={[
+              { v: "all", l: "All" }, { v: "1", l: "$" }, { v: "2", l: "$$" }, { v: "3", l: "$$$" }, { v: "4", l: "$$$$" } ]} />
+            <div className="flex gap-2 flex-wrap">
+              <button className="chip" data-active={kids} onClick={() => setKids(!kids)}>kid-friendly only</button>
+              <button className="chip" data-active={favsOnly} onClick={() => setFavsOnly(!favsOnly)}>♥ favourites only</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(p => <PlaceCard key={p.id} place={p}
+              isFavourite={favourites.has(p.id)} onToggleFavourite={onToggleFavourite}
+              onOpen={(pl) => onOpen({ type: "place", place: pl })} />)}
+          </div>
+        </section>
+      );
+    }
+
+    function ActivitiesPage({ onOpen, favourites, onToggleFavourite }) {
+      const all = Object.values(PLACES).filter(p => p.kind === "activity");
+      const [tag, setTag] = useState("all");
+      const [favsOnly, setFavsOnly] = useState(false);
+      const tags = ["all", ...Array.from(new Set(all.flatMap(p => p.tags)))];
+      let filtered = all.filter(p => {
+        if (tag !== "all" && !p.tags.includes(tag)) return false;
+        if (favsOnly && !favourites.has(p.id)) return false;
+        return true;
+      });
+      filtered = sortByFavourites(filtered, favourites);
+      return (
+        <section>
+          <div className="mb-4">
+            <h2 className="serif text-3xl teal">Activities</h2>
+            <p className="text-sm ink-soft mt-1">{filtered.length} of {all.length} options · favourites pinned.</p>
+          </div>
+          <div className="mb-6 space-y-3">
+            <ChipRow label="Tag" value={tag} setValue={setTag} options={tags.map(t => ({ v: t, l: t === "all" ? "All" : t }))} />
+            <div><button className="chip" data-active={favsOnly} onClick={() => setFavsOnly(!favsOnly)}>♥ favourites only</button></div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(p => <PlaceCard key={p.id} place={p}
+              isFavourite={favourites.has(p.id)} onToggleFavourite={onToggleFavourite}
+              onOpen={(pl) => onOpen({ type: "place", place: pl })} />)}
+          </div>
+        </section>
+      );
+    }
+
+    /* ================================================================ */
+    /* APP                                                                 */
+    /* ================================================================ */
+
+    function App() {
+      const [view, setView] = useState("itinerary");
+      const [day, setDay] = useState("fri");
+      const [sheet, setSheet] = useState(null);
+
+      // Picks
+      const [picks, setPicks] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("wlg-picks-v1")) || {}; } catch { return {}; }
+      });
+      const setPickForEntry = (entryId, placeId) => {
+        const next = { ...picks, [entryId]: placeId };
+        setPicks(next);
+        localStorage.setItem("wlg-picks-v1", JSON.stringify(next));
+      };
+      const resetPick = (entryId) => {
+        const next = { ...picks }; delete next[entryId];
+        setPicks(next);
+        localStorage.setItem("wlg-picks-v1", JSON.stringify(next));
+      };
+
+      // Favourites
+      const [favourites, setFavourites] = useState(() => {
+        try {
+          const stored = localStorage.getItem("wlg-favourites-v1");
+          if (stored) return new Set(JSON.parse(stored));
+        } catch {}
+        // Seed defaults
+        const seeded = new Set(FAVOURITES_DEFAULT);
+        localStorage.setItem("wlg-favourites-v1", JSON.stringify([...seeded]));
+        return seeded;
+      });
+      const toggleFavourite = (placeId) => {
+        const next = new Set(favourites);
+        if (next.has(placeId)) next.delete(placeId); else next.add(placeId);
+        setFavourites(next);
+        localStorage.setItem("wlg-favourites-v1", JSON.stringify([...next]));
+      };
+
+      // Packing
+      const [packingChecked, setPackingChecked] = useState(() => {
+        try {
+          const stored = localStorage.getItem("wlg-packing-v1");
+          if (stored) return new Set(JSON.parse(stored));
+        } catch {}
+        return new Set();
+      });
+      const togglePacking = (itemId) => {
+        const next = new Set(packingChecked);
+        if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
+        setPackingChecked(next);
+        localStorage.setItem("wlg-packing-v1", JSON.stringify([...next]));
+      };
+      const resetPacking = () => {
+        if (!confirm("Clear all packed-items checks?")) return;
+        setPackingChecked(new Set());
+        localStorage.setItem("wlg-packing-v1", JSON.stringify([]));
+      };
+
+      // Todos
+      const [todos, setTodos] = useState(() => {
+        try {
+          const stored = localStorage.getItem("wlg-todos-v1");
+          if (stored) return JSON.parse(stored);
+        } catch {}
+        const seeded = TODOS_DEFAULT.map(t => ({ ...t, done: false }));
+        localStorage.setItem("wlg-todos-v1", JSON.stringify(seeded));
+        return seeded;
+      });
+      const persistTodos = (next) => {
+        setTodos(next);
+        localStorage.setItem("wlg-todos-v1", JSON.stringify(next));
+      };
+      const toggleTodo = (id) => persistTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+      const addTodo = (text) => persistTodos([...todos, { id: `todo-${Date.now()}`, text, done: false }]);
+      const removeTodo = (id) => persistTodos(todos.filter(t => t.id !== id));
+
+      const openSheet = (payload) => setSheet(payload);
+      const closeSheet = () => setSheet(null);
+      const openSwap = (entry) => setSheet({ type: "swap", entry });
+
+      const activeDay = DAYS.find(d => d.id === day);
+
+      return (
+        <div className="min-h-screen">
+          <header className="border-b border-line bg-cream">
+            <div className="max-w-6xl mx-auto px-6 py-8">
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <div>
+                  <div className="text-[11px] uppercase tracking-widest ink-soft font-semibold mono">29 May – 1 June 2026 · King's Birthday weekend</div>
+                  <h1 className="serif text-4xl md:text-5xl teal mt-1">Wellington · 4 days</h1>
+                  <div className="text-sm ink-soft mt-1">Peter · Emma · Mam · Nate (5) · Cillian (2)</div>
+                </div>
+                <div className="no-print"><button onClick={() => window.print()} className="px-4 py-2 rounded-lg border border-line bg-white text-sm hover:bg-cream-deep">Print</button></div>
+              </div>
+            </div>
+          </header>
+
+          <nav className="no-print sticky top-0 z-10 bg-cream border-b border-line">
+            <div className="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2">
+              {[
+                ["itinerary", "Itinerary"], ["food", "Food"],
+                ["activities", "Activities"], ["logistics", "Logistics + Packing"],
+              ].map(([id, label]) => (
+                <button key={id} data-active={view === id} className="tab-btn" onClick={() => setView(id)}>{label}</button>
+              ))}
+            </div>
+          </nav>
+
+          <main className="max-w-6xl mx-auto px-6 py-10">
+            {view === "itinerary" && (
+              <>
+                <WeatherWidget />
+                <div className="card p-4 mb-8 bg-sage-soft border-line">
+                  <div className="text-[11px] uppercase tracking-widest font-semibold mono" style={{ color: "var(--teal-deep)" }}>Interactive</div>
+                  <div className="text-sm ink mt-1">
+                    Cards with <span className="px-2 py-0.5 rounded-md border border-line bg-white mono text-xs">Swap →</span> let you change the food or activity. Heart any place to favourite it — favourites pin to the top in Food + Activities. Saves on this device.
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {DAYS.map(d => (
+                    <button key={d.id} data-active={day === d.id} className="tab-btn text-sm" onClick={() => setDay(d.id)}>{d.label}</button>
+                  ))}
+                </div>
+                <Day day={activeDay} picks={picks} onOpen={openSheet} onSwap={openSwap} onResetPick={resetPick} />
+              </>
+            )}
+            {view === "food" && <FoodPage onOpen={openSheet} favourites={favourites} onToggleFavourite={toggleFavourite} />}
+            {view === "activities" && <ActivitiesPage onOpen={openSheet} favourites={favourites} onToggleFavourite={toggleFavourite} />}
+            {view === "logistics" && <LogisticsPage
+              packingChecked={packingChecked} onTogglePacking={togglePacking} onResetPacking={resetPacking}
+              todos={todos} onToggleTodo={toggleTodo} onAddTodo={addTodo} onRemoveTodo={removeTodo} />}
+          </main>
+
+          <footer className="border-t border-line bg-cream-deep">
+            <div className="max-w-6xl mx-auto px-6 py-6 text-xs ink-soft">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span>Local file · open in any browser · last updated 18 May 2026</span>
+                <span>Picks · favourites · packing · todos all save to this device.</span>
+              </div>
+            </div>
+          </footer>
+
+          <DetailSheet open={!!sheet} payload={sheet} onClose={closeSheet} onOpen={openSheet}
+            picks={picks} onPickForEntry={setPickForEntry}
+            favourites={favourites} onToggleFavourite={toggleFavourite} />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
