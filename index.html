@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -609,6 +610,64 @@
       { id: "todo-indoor-pool", text: "Find a cool indoor swimming pool in Wellington (rainy-day backup)" },
       { id: "todo-weather-check", text: "Sun 24 May — pull a 10-day forecast and re-confirm Saturday plan" },
     ];
+
+    /* ================================================================ */
+    /* SUPABASE — public anon credentials (RLS-controlled access)         */
+    /* ================================================================ */
+
+    const SUPABASE_URL = "https://iinlqwazhlirtmajbosz.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlpbmxxd2F6aGxpcnRtYWpib3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMjAwMjAsImV4cCI6MjA5NDg5NjAyMH0.8G6wFvLTxvOgZ7MGnyTGOQzLWN0wgTTpANOEENiIIrs";
+    const TRIP_ID = "wellington-2026";
+    const sb = (window.supabase && window.supabase.createClient)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      : null;
+
+    /* ----- helpers (return promises; callers handle errors) ---------- */
+    async function sbLoadPicks() {
+      const { data, error } = await sb.from("picks").select("entry_id, place_id").eq("trip_id", TRIP_ID);
+      if (error) throw error;
+      return Object.fromEntries(data.map(r => [r.entry_id, r.place_id]));
+    }
+    const sbSetPick = (entry_id, place_id) =>
+      sb.from("picks").upsert({ trip_id: TRIP_ID, entry_id, place_id, updated_at: new Date().toISOString() });
+    const sbResetPick = (entry_id) =>
+      sb.from("picks").delete().eq("trip_id", TRIP_ID).eq("entry_id", entry_id);
+
+    async function sbLoadFavourites() {
+      const { data, error } = await sb.from("favourites").select("place_id").eq("trip_id", TRIP_ID);
+      if (error) throw error;
+      return new Set(data.map(r => r.place_id));
+    }
+    const sbAddFavourite = (place_id) =>
+      sb.from("favourites").upsert({ trip_id: TRIP_ID, place_id });
+    const sbRemoveFavourite = (place_id) =>
+      sb.from("favourites").delete().eq("trip_id", TRIP_ID).eq("place_id", place_id);
+    const sbSeedFavourites = (ids) =>
+      sb.from("favourites").upsert(ids.map(place_id => ({ trip_id: TRIP_ID, place_id })));
+
+    async function sbLoadPacking() {
+      const { data, error } = await sb.from("packing").select("item_id, checked").eq("trip_id", TRIP_ID);
+      if (error) throw error;
+      return new Set(data.filter(r => r.checked).map(r => r.item_id));
+    }
+    const sbSetPacking = (item_id, checked) =>
+      sb.from("packing").upsert({ trip_id: TRIP_ID, item_id, checked });
+    const sbResetPacking = () =>
+      sb.from("packing").delete().eq("trip_id", TRIP_ID);
+
+    async function sbLoadTodos() {
+      const { data, error } = await sb.from("todos").select("*").eq("trip_id", TRIP_ID).order("created_at");
+      if (error) throw error;
+      return data.map(r => ({ id: r.id, text: r.text, done: r.done }));
+    }
+    const sbAddTodo = (t) =>
+      sb.from("todos").insert({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done });
+    const sbUpdateTodo = (id, done) =>
+      sb.from("todos").update({ done }).eq("trip_id", TRIP_ID).eq("id", id);
+    const sbRemoveTodo = (id) =>
+      sb.from("todos").delete().eq("trip_id", TRIP_ID).eq("id", id);
+    const sbSeedTodos = (todos) =>
+      sb.from("todos").upsert(todos.map(t => ({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done })));
 
     /* ================================================================ */
     /* TRIP DETAILS                                                       */
@@ -1526,40 +1585,78 @@
       const [day, setDay] = useState("fri");
       const [sheet, setSheet] = useState(null);
 
-      // Picks
+      const [syncStatus, setSyncStatus] = useState(sb ? "syncing" : "local-only");
+
+      // ===== Picks =====
       const [picks, setPicks] = useState(() => {
         try { return JSON.parse(localStorage.getItem("wlg-picks-v1")) || {}; } catch { return {}; }
       });
+      useEffect(() => {
+        if (!sb) return;
+        (async () => {
+          try {
+            const remote = await sbLoadPicks();
+            const localKeys = Object.keys(picks);
+            if (Object.keys(remote).length === 0 && localKeys.length > 0) {
+              for (const [entryId, placeId] of Object.entries(picks)) await sbSetPick(entryId, placeId);
+            } else if (Object.keys(remote).length > 0) {
+              setPicks(remote);
+              localStorage.setItem("wlg-picks-v1", JSON.stringify(remote));
+            }
+          } catch (e) { console.error("Supabase picks load:", e); setSyncStatus("error"); }
+        })();
+      }, []);
       const setPickForEntry = (entryId, placeId) => {
         const next = { ...picks, [entryId]: placeId };
         setPicks(next);
         localStorage.setItem("wlg-picks-v1", JSON.stringify(next));
+        if (sb) sbSetPick(entryId, placeId).catch(e => console.error("Supabase pick save:", e));
       };
       const resetPick = (entryId) => {
         const next = { ...picks }; delete next[entryId];
         setPicks(next);
         localStorage.setItem("wlg-picks-v1", JSON.stringify(next));
+        if (sb) sbResetPick(entryId).catch(e => console.error("Supabase pick reset:", e));
       };
 
-      // Favourites
+      // ===== Favourites =====
       const [favourites, setFavourites] = useState(() => {
         try {
           const stored = localStorage.getItem("wlg-favourites-v1");
           if (stored) return new Set(JSON.parse(stored));
         } catch {}
-        // Seed defaults
-        const seeded = new Set(FAVOURITES_DEFAULT);
-        localStorage.setItem("wlg-favourites-v1", JSON.stringify([...seeded]));
-        return seeded;
+        return new Set(FAVOURITES_DEFAULT);
       });
+      useEffect(() => {
+        if (!sb) return;
+        (async () => {
+          try {
+            const remote = await sbLoadFavourites();
+            if (remote.size === 0) {
+              const seed = favourites.size > 0 ? [...favourites] : FAVOURITES_DEFAULT;
+              if (seed.length > 0) await sbSeedFavourites(seed);
+              const next = new Set(seed);
+              setFavourites(next);
+              localStorage.setItem("wlg-favourites-v1", JSON.stringify([...next]));
+            } else {
+              setFavourites(remote);
+              localStorage.setItem("wlg-favourites-v1", JSON.stringify([...remote]));
+            }
+            setSyncStatus("synced");
+          } catch (e) { console.error("Supabase favourites load:", e); setSyncStatus("error"); }
+        })();
+      }, []);
       const toggleFavourite = (placeId) => {
         const next = new Set(favourites);
-        if (next.has(placeId)) next.delete(placeId); else next.add(placeId);
+        const wasIn = next.has(placeId);
+        if (wasIn) next.delete(placeId); else next.add(placeId);
         setFavourites(next);
         localStorage.setItem("wlg-favourites-v1", JSON.stringify([...next]));
+        if (sb) (wasIn ? sbRemoveFavourite(placeId) : sbAddFavourite(placeId))
+          .catch(e => console.error("Supabase favourite toggle:", e));
       };
 
-      // Packing
+      // ===== Packing =====
       const [packingChecked, setPackingChecked] = useState(() => {
         try {
           const stored = localStorage.getItem("wlg-packing-v1");
@@ -1567,35 +1664,79 @@
         } catch {}
         return new Set();
       });
+      useEffect(() => {
+        if (!sb) return;
+        (async () => {
+          try {
+            const remote = await sbLoadPacking();
+            if (remote.size === 0 && packingChecked.size > 0) {
+              for (const item of packingChecked) await sbSetPacking(item, true);
+            } else if (remote.size > 0) {
+              setPackingChecked(remote);
+              localStorage.setItem("wlg-packing-v1", JSON.stringify([...remote]));
+            }
+          } catch (e) { console.error("Supabase packing load:", e); }
+        })();
+      }, []);
       const togglePacking = (itemId) => {
         const next = new Set(packingChecked);
-        if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
+        const wasIn = next.has(itemId);
+        if (wasIn) next.delete(itemId); else next.add(itemId);
         setPackingChecked(next);
         localStorage.setItem("wlg-packing-v1", JSON.stringify([...next]));
+        if (sb) sbSetPacking(itemId, !wasIn).catch(e => console.error("Supabase packing save:", e));
       };
       const resetPacking = () => {
         if (!confirm("Clear all packed-items checks?")) return;
         setPackingChecked(new Set());
         localStorage.setItem("wlg-packing-v1", JSON.stringify([]));
+        if (sb) sbResetPacking().catch(e => console.error("Supabase packing reset:", e));
       };
 
-      // Todos
+      // ===== Todos =====
       const [todos, setTodos] = useState(() => {
         try {
           const stored = localStorage.getItem("wlg-todos-v1");
           if (stored) return JSON.parse(stored);
         } catch {}
-        const seeded = TODOS_DEFAULT.map(t => ({ ...t, done: false }));
-        localStorage.setItem("wlg-todos-v1", JSON.stringify(seeded));
-        return seeded;
+        return TODOS_DEFAULT.map(t => ({ ...t, done: false }));
       });
-      const persistTodos = (next) => {
+      useEffect(() => {
+        if (!sb) return;
+        (async () => {
+          try {
+            const remote = await sbLoadTodos();
+            if (remote.length === 0) {
+              const seed = todos.length > 0 ? todos : TODOS_DEFAULT.map(t => ({ ...t, done: false }));
+              if (seed.length > 0) await sbSeedTodos(seed);
+              setTodos(seed);
+              localStorage.setItem("wlg-todos-v1", JSON.stringify(seed));
+            } else {
+              setTodos(remote);
+              localStorage.setItem("wlg-todos-v1", JSON.stringify(remote));
+            }
+          } catch (e) { console.error("Supabase todos load:", e); }
+        })();
+      }, []);
+      const persistTodosLocal = (next) => {
         setTodos(next);
         localStorage.setItem("wlg-todos-v1", JSON.stringify(next));
       };
-      const toggleTodo = (id) => persistTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
-      const addTodo = (text) => persistTodos([...todos, { id: `todo-${Date.now()}`, text, done: false }]);
-      const removeTodo = (id) => persistTodos(todos.filter(t => t.id !== id));
+      const toggleTodo = (id) => {
+        const next = todos.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        persistTodosLocal(next);
+        const target = next.find(t => t.id === id);
+        if (sb && target) sbUpdateTodo(id, target.done).catch(e => console.error("Supabase todo update:", e));
+      };
+      const addTodo = (text) => {
+        const newTodo = { id: `todo-${Date.now()}`, text, done: false };
+        persistTodosLocal([...todos, newTodo]);
+        if (sb) sbAddTodo(newTodo).catch(e => console.error("Supabase todo add:", e));
+      };
+      const removeTodo = (id) => {
+        persistTodosLocal(todos.filter(t => t.id !== id));
+        if (sb) sbRemoveTodo(id).catch(e => console.error("Supabase todo remove:", e));
+      };
 
       const openSheet = (payload) => setSheet(payload);
       const closeSheet = () => setSheet(null);
@@ -1613,7 +1754,15 @@
                   <h1 className="serif text-4xl md:text-5xl teal mt-1">Wellington · 4 days</h1>
                   <div className="text-sm ink-soft mt-1">Peter · Emma · Mam · Nate (5) · Cillian (2)</div>
                 </div>
-                <div className="no-print"><button onClick={() => window.print()} className="px-4 py-2 rounded-lg border border-line bg-white text-sm hover:bg-cream-deep">Print</button></div>
+                <div className="no-print flex items-center gap-3">
+                  <span className="text-xs ink-mute" title={`Supabase: ${syncStatus}`}>
+                    {syncStatus === "synced" && <span style={{ color: "var(--sage)" }}>● synced</span>}
+                    {syncStatus === "syncing" && <span style={{ color: "var(--gold)" }}>● syncing…</span>}
+                    {syncStatus === "error" && <span style={{ color: "var(--coral)" }}>● offline (local only)</span>}
+                    {syncStatus === "local-only" && <span style={{ color: "var(--ink-mute)" }}>● local only</span>}
+                  </span>
+                  <button onClick={() => window.print()} className="px-4 py-2 rounded-lg border border-line bg-white text-sm hover:bg-cream-deep">Print</button>
+                </div>
               </div>
             </div>
           </header>
