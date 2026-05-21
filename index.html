@@ -628,46 +628,68 @@
       if (error) throw error;
       return Object.fromEntries(data.map(r => [r.entry_id, r.place_id]));
     }
-    const sbSetPick = (entry_id, place_id) =>
-      sb.from("picks").upsert({ trip_id: TRIP_ID, entry_id, place_id, updated_at: new Date().toISOString() });
-    const sbResetPick = (entry_id) =>
-      sb.from("picks").delete().eq("trip_id", TRIP_ID).eq("entry_id", entry_id);
+    async function sbSetPick(entry_id, place_id) {
+      const { error } = await sb.from("picks").upsert({ trip_id: TRIP_ID, entry_id, place_id, updated_at: new Date().toISOString() });
+      if (error) throw error;
+    }
+    async function sbResetPick(entry_id) {
+      const { error } = await sb.from("picks").delete().eq("trip_id", TRIP_ID).eq("entry_id", entry_id);
+      if (error) throw error;
+    }
 
     async function sbLoadFavourites() {
       const { data, error } = await sb.from("favourites").select("place_id").eq("trip_id", TRIP_ID);
       if (error) throw error;
       return new Set(data.map(r => r.place_id));
     }
-    const sbAddFavourite = (place_id) =>
-      sb.from("favourites").upsert({ trip_id: TRIP_ID, place_id });
-    const sbRemoveFavourite = (place_id) =>
-      sb.from("favourites").delete().eq("trip_id", TRIP_ID).eq("place_id", place_id);
-    const sbSeedFavourites = (ids) =>
-      sb.from("favourites").upsert(ids.map(place_id => ({ trip_id: TRIP_ID, place_id })));
+    async function sbAddFavourite(place_id) {
+      const { error } = await sb.from("favourites").upsert({ trip_id: TRIP_ID, place_id });
+      if (error) throw error;
+    }
+    async function sbRemoveFavourite(place_id) {
+      const { error } = await sb.from("favourites").delete().eq("trip_id", TRIP_ID).eq("place_id", place_id);
+      if (error) throw error;
+    }
+    async function sbSeedFavourites(ids) {
+      const { error } = await sb.from("favourites").upsert(ids.map(place_id => ({ trip_id: TRIP_ID, place_id })));
+      if (error) throw error;
+    }
 
     async function sbLoadPacking() {
       const { data, error } = await sb.from("packing").select("item_id, checked").eq("trip_id", TRIP_ID);
       if (error) throw error;
       return new Set(data.filter(r => r.checked).map(r => r.item_id));
     }
-    const sbSetPacking = (item_id, checked) =>
-      sb.from("packing").upsert({ trip_id: TRIP_ID, item_id, checked });
-    const sbResetPacking = () =>
-      sb.from("packing").delete().eq("trip_id", TRIP_ID);
+    async function sbSetPacking(item_id, checked) {
+      const { error } = await sb.from("packing").upsert({ trip_id: TRIP_ID, item_id, checked });
+      if (error) throw error;
+    }
+    async function sbResetPacking() {
+      const { error } = await sb.from("packing").delete().eq("trip_id", TRIP_ID);
+      if (error) throw error;
+    }
 
     async function sbLoadTodos() {
       const { data, error } = await sb.from("todos").select("*").eq("trip_id", TRIP_ID).order("created_at");
       if (error) throw error;
       return data.map(r => ({ id: r.id, text: r.text, done: r.done }));
     }
-    const sbAddTodo = (t) =>
-      sb.from("todos").insert({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done });
-    const sbUpdateTodo = (id, done) =>
-      sb.from("todos").update({ done }).eq("trip_id", TRIP_ID).eq("id", id);
-    const sbRemoveTodo = (id) =>
-      sb.from("todos").delete().eq("trip_id", TRIP_ID).eq("id", id);
-    const sbSeedTodos = (todos) =>
-      sb.from("todos").upsert(todos.map(t => ({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done })));
+    async function sbAddTodo(t) {
+      const { error } = await sb.from("todos").insert({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done });
+      if (error) throw error;
+    }
+    async function sbUpdateTodo(id, done) {
+      const { error } = await sb.from("todos").update({ done }).eq("trip_id", TRIP_ID).eq("id", id);
+      if (error) throw error;
+    }
+    async function sbRemoveTodo(id) {
+      const { error } = await sb.from("todos").delete().eq("trip_id", TRIP_ID).eq("id", id);
+      if (error) throw error;
+    }
+    async function sbSeedTodos(todos) {
+      const { error } = await sb.from("todos").upsert(todos.map(t => ({ trip_id: TRIP_ID, id: t.id, text: t.text, done: t.done })));
+      if (error) throw error;
+    }
 
     /* ================================================================ */
     /* TRIP DETAILS                                                       */
